@@ -1,0 +1,8 @@
+.env
+*.env.*
+.DS_Store
+node_modules/
+*.pem
+*.key
+auth.json
+.wrangler/

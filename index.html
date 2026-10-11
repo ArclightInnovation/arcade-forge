@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>ArcadeForge AI — Design, Compile & Play Retro Games</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <style>
+    :root {
+      --bg-dark: #0a0e17;
+      --card-bg: #121927;
+      --card-border: #1f293d;
+      --primary: #f59e0b; /* Retro Arcade Amber */
+      --primary-hover: #d97706;
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-rose: #f43f5e;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.5);
+      --shadow-lg: 0 10px 25px -3px rgba(0,0,0,0.7);
+    }
+
+    * { box-sizing: border-box; }
+    body, html {
+      margin: 0; padding: 0; width: 100%; height: 100%;
+      background-color: var(--bg-dark); color: var(--text-main);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14.5px; line-height: 1.55; letter-spacing: -0.005em;
+      overflow-x: hidden; touch-action: manipulation;
+    }
+
+    /* SVG Icons */
+    .icon { width: 18px; height: 18px; flex: 0 0 auto; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .icon-sm { width: 14px; height: 14px; }
+    .icon-lg { width: 28px; height: 28px; }
+
+    /* Top Navigation Header */
+    header {
+      background: #0d1424; border-bottom: 1px solid var(--card-border);
+      padding: 0 clamp(14px, 3vw, 24px); display: flex; justify-content: space-between;
+      align-items: center; min-height: 58px; position: sticky; top: 0; z-index: 1000;
+      box-shadow: var(--shadow-sm);
+    }
+    .brand { font-size: 1.05rem; font-weight: 850; color: var(--primary); display: flex; align-items: center; gap: 9px; letter-spacing: -0.02em; }
+    .brand-mark { width: 32px; height: 32px; display: grid; place-items: center; color: #0a0e17; background: var(--primary); border-radius: 7px; }
+
+    /* Navigation Tabs */
+    .nav-tabs { display: flex; gap: 4px; overflow-x: auto; }
+    .nav-tab {
+      background: transparent; border: none; border-bottom: 2px solid transparent; padding: 16px 12px; font-weight: 600;
+      font-size: 0.84rem; color: var(--text-muted); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .nav-tab:hover { color: var(--text-main); }
+    .nav-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 750; }
+
+    /* Main Container */
+    main {
+      max-width: 1140px; margin: 0 auto; padding: 20px clamp(12px, 3vw, 24px) 60px;
+      display: flex; flex-direction: column; gap: 18px;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 12px; padding: 20px; box-shadow: var(--shadow-sm);
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .card-title { font-size: 1.08rem; font-weight: 750; color: var(--text-main); display: flex; align-items: center; gap: 9px; }
+
+    /* Buttons */
+    button.btn-primary {
+      background: var(--primary); color: #0a0e17; font-weight: 750;
+      border: 1px solid var(--primary); border-radius: 7px; padding: 9px 16px; font-size: 0.88rem;
+      min-height: 40px; cursor: pointer; display: inline-flex; align-items: center;
+      justify-content: center; gap: 7px; transition: all 0.15s ease;
+    }
+    button.btn-primary:hover { background: var(--primary-hover); }
+
+    button.btn-secondary {
+      background: #192235; color: var(--text-main); border: 1px solid var(--card-border);
+      border-radius: 7px; padding: 8px 14px; font-size: 0.84rem; font-weight: 600;
+      min-height: 38px; cursor: pointer; display: inline-flex; align-items: center;
+      justify-content: center; gap: 6px; transition: all 0.15s ease;
+    }
+    button.btn-secondary:hover { background: #222d45; border-color: #334155; }
+
+    input, select, textarea {
+      width: 100%; padding: 10px 12px; background: #0b101c;
+      border: 1px solid var(--card-border); color: var(--text-main);
+      border-radius: 7px; font-size: 14px; outline: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+    }
+
+    /* Badges */
+    .badge {
+      padding: 3px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 800;
+      letter-spacing: 0.04em; display: inline-flex; align-items: center; gap: 4px; text-transform: uppercase;
+    }
+    .badge-amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge-cyan { background: rgba(6, 182, 212, 0.15); color: #67e8f9; border: 1px solid rgba(6, 182, 212, 0.3); }
+    .badge-emerald { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+    /* Arcade Canvas & Controls Container */
+    .arcade-cabinet {
+      background: #080c14; border: 2px solid #2a374f; border-radius: 14px;
+      padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 14px;
+      box-shadow: 0 0 30px rgba(245, 158, 11, 0.12);
+    }
+    canvas#game-canvas {
+      background: #000000; border: 2px solid #334155; border-radius: 8px;
+      width: 100%; max-width: 640px; aspect-ratio: 4 / 3; display: block;
+      image-rendering: pixelated;
+    }
+
+    /* On-Screen Touch Virtual Controller (Mobile Optimized) */
+    .virtual-controller {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 600px;
+      user-select: none; -webkit-user-select: none; margin-top: 6px;
+    }
+    .dpad-container {
+      display: grid; grid-template-columns: repeat(3, 52px); grid-template-rows: repeat(3, 52px);
+      gap: 4px; justify-content: center; align-content: center;
+    }
+    .dpad-btn {
+      background: #1e293b; color: #ffffff; border: 1px solid #334155; border-radius: 8px;
+      display: grid; place-items: center; font-size: 1.1rem; cursor: pointer;
+      touch-action: none; transition: background 0.1s ease;
+    }
+    .dpad-btn:active { background: var(--primary); color: #0a0e17; }
+
+    .action-btn-container {
+      display: flex; gap: 16px; justify-content: center; align-items: center;
+    }
+    .action-round-btn {
+      width: 64px; height: 64px; border-radius: 50%; font-weight: 850; font-size: 1.15rem;
+      border: 2px solid; display: grid; place-items: center; cursor: pointer;
+      touch-action: none; transition: transform 0.08s ease; user-select: none;
+    }
+    .action-round-btn:active { transform: scale(0.92); }
+    .btn-action-a { background: #1e1b4b; border-color: var(--accent-cyan); color: var(--accent-cyan); }
+    .btn-action-a:active { background: var(--accent-cyan); color: #0a0e17; }
+    .btn-action-b { background: #451a03; border-color: var(--primary); color: var(--primary); }
+    .btn-action-b:active { background: var(--primary); color: #0a0e17; }
+
+    /* Layout Grids */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    /* Screen Views */
+    .view-panel { display: none; flex-direction: column; gap: 16px; }
+    .view-panel.active { display: flex; }
+
+    @media (max-width: 680px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .virtual-controller { gap: 10px; }
+      .dpad-container { grid-template-columns: repeat(3, 44px); grid-template-rows: repeat(3, 44px); }
+      .action-round-btn { width: 54px; height: 54px; font-size: 1rem; }
+      header { padding: 0 12px; }
+      main { padding: 14px 10px 48px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SVG Sprite -->
+  <svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+    <defs>
+      <symbol id="i-gamepad" viewBox="0 0 24 24"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><rect x="2" y="6" width="20" height="12" rx="2"/></symbol>
+      <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3 1.4 4.6L18 9l-4.6 1.4L12 15l-1.4-4.6L6 9l4.6-1.4L12 3ZM19 15l.7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7L19 15Z"/></symbol>
+      <symbol id="i-qrcode" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="14" width="3" height="3"/><rect x="14" y="18" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></symbol>
+      <symbol id="i-code" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></symbol>
+      <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 20h16"/></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+      <symbol id="i-send" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></symbol>
+    </defs>
+  </svg>
+
+  <!-- Passcode Protection Gate -->
+  <div id="auth-screen" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #060911; display: flex; justify-content: center; align-items: center; z-index: 999999; padding: 20px;">
+    <div class="card" style="max-width: 400px; width: 100%; text-align: center; padding: 36px 26px;">
+      <div style="width: 46px; height: 46px; background: rgba(245,158,11,0.15); color: var(--primary); border-radius: 10px; display: grid; place-items: center; margin: 0 auto 14px; border: 1px solid rgba(245,158,11,0.3);">
+        <svg class="icon icon-lg"><use href="#i-gamepad"/></svg>
+      </div>
+      <div style="font-size: 1.35rem; font-weight: 850; color: var(--primary);">ArcadeForge AI</div>
+      <p style="font-size: 0.86rem; color: var(--text-muted); margin: 6px 0 20px 0;">Enter security passcode to unlock the Retro Game Studio:</p>
+      <input type="password" id="auth-password" placeholder="Enter security passcode..." autocomplete="off" />
+      <div id="auth-error" style="color: var(--accent-rose); font-size: 0.8rem; font-weight: 700; display: none; margin-top: 6px;">Invalid Security Passcode</div>
+      <button class="btn-primary" id="btn-unlock" style="width: 100%; margin-top: 14px;">Unlock Arcade Studio</button>
+    </div>
+  </div>
+
+  <!-- Main Application Shell -->
+  <div id="app-shell" style="display: none; flex-direction: column; min-height: 100vh;">
+    <!-- Top Header -->
+    <header>
+      <div class="brand">
+        <span class="brand-mark"><svg class="icon"><use href="#i-gamepad"/></svg></span>
+        <span>ArcadeForge AI</span>
+      </div>
+
+      <nav class="nav-tabs">
+        <button class="nav-tab active" data-view="view-arcade"><svg class="icon icon-sm"><use href="#i-gamepad"/></svg> Arcade Cabinet</button>
+        <button class="nav-tab" data-view="view-designer"><svg class="icon icon-sm"><use href="#i-spark"/></svg> AI Design Studio (GPT-6 Astra)</button>
+        <button class="nav-tab" data-view="view-qr"><svg class="icon icon-sm"><use href="#i-qrcode"/></svg> Mobile QR Join</button>
+      </nav>
+
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <button class="btn-secondary" id="btn-export-python" title="Export Python Pygame code"><svg class="icon icon-sm"><use href="#i-code"/></svg> Export game.py</button>
+        <button class="btn-secondary" id="btn-lock-app" style="padding: 4px 8px; font-size: 0.78rem;"><svg class="icon icon-sm"><use href="#i-lock"/></svg> Lock</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- 1. ARCADE CABINET (PLAYABLE GAME VIEW) -->
+      <div id="view-arcade" class="view-panel active">
+        <div class="arcade-cabinet">
+          <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 640px;">
+            <div>
+              <span class="badge badge-amber" id="game-genre-badge">BEAT 'EM UP</span>
+              <strong id="game-title-display" style="font-size: 1.1rem; margin-left: 8px;">Mutant Alley Brawler</strong>
+            </div>
+            <div style="display: flex; gap: 12px; font-size: 0.86rem; font-weight: 750;">
+              <span style="color: var(--accent-emerald);">HP: <span id="hud-hp">100</span></span>
+              <span style="color: var(--primary);">SCORE: <span id="hud-score">0</span></span>
+              <span style="color: var(--accent-cyan);">WAVE: <span id="hud-wave">1</span></span>
+            </div>
+          </div>
+
+          <!-- The Game Canvas -->
+          <canvas id="game-canvas" width="480" height="360"></canvas>
+
+          <!-- On-Screen Virtual Controller for Mobile -->
+          <div class="virtual-controller">
+            <!-- D-Pad -->
+            <div class="dpad-container">
+              <div></div>
+              <button class="dpad-btn" id="dpad-up">&uarr;</button>
+              <div></div>
+              <button class="dpad-btn" id="dpad-left">&larr;</button>
+              <div></div>
+              <button class="dpad-btn" id="dpad-right">&rarr;</button>
+              <div></div>
+              <button class="dpad-btn" id="dpad-down">&darr;</button>
+              <div></div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-btn-container">
+              <button class="action-round-btn btn-action-a" id="btn-action-a">A<span style="font-size:0.6rem;display:block">JUMP</span></button>
+              <button class="action-round-btn btn-action-b" id="btn-action-b">B<span style="font-size:0.6rem;display:block">ATTACK</span></button>
+            </div>
+          </div>
+
+          <div style="font-size: 0.78rem; color: var(--text-muted); text-align: center;">
+            Desktop: <strong>Arrow Keys</strong> or <strong>WASD</strong> to Move | <strong>Z</strong> / <strong>Space</strong> = Jump | <strong>X</strong> = Attack
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. AI DESIGN STUDIO (GPT-6 ASTRA) -->
+      <div id="view-designer" class="view-panel">
+        <div class="card" style="background: linear-gradient(135deg, #121927 0%, #1e1b4b 100%); border-color: #312e81;">
+          <span class="badge badge-cyan">POWERED BY GPT-6 ASTRA</span>
+          <div style="font-size: 1.4rem; font-weight: 850; color: var(--text-main); margin-top: 2px;">
+            Iterative Arcade Game Forge
+          </div>
+          <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">
+            Answer a few design questions below, or chat directly with GPT-6 Astra to build, balance, compile, and reshape your game.
+          </p>
+        </div>
+
+        <div class="grid-2">
+          <!-- Design Wizard Inputs -->
+          <div class="card">
+            <div class="card-title"><svg class="icon"><use href="#i-spark"/></svg> Game Blueprint Wizard</div>
+            
+            <div>
+              <label style="font-size: 0.78rem; font-weight: 750; color: var(--text-muted);">Arcade Genre:</label>
+              <select id="wizard-genre" style="margin-top: 4px;">
+                <option value="beatemup">Classic Beat 'Em Up (Simpsons / TMNT style)</option>
+                <option value="roguelike">Rogue-like / Dungeon Crawler</option>
+                <option value="platformer">Side-Scrolling Retro Platformer</option>
+                <option value="shmup">Space Arcade Shmup / Bullet Shooter</option>
+                <option value="boardgame">Retro Turn-Based Board / Strategy</option>
+              </select>
+            </div>
+
+            <div>
+              <label style="font-size: 0.78rem; font-weight: 750; color: var(--text-muted);">Theme &amp; Setting:</label>
+              <input type="text" id="wizard-theme" value="Neo-Tokyo Mutant Sewers" style="margin-top: 4px;" />
+            </div>
+
+            <div>
+              <label style="font-size: 0.78rem; font-weight: 750; color: var(--text-muted);">Hero Character &amp; Special Moves:</label>
+              <input type="text" id="wizard-hero" value="Cyber Brawler with Laser Punch &amp; Whirlwind Kick" style="margin-top: 4px;" />
+            </div>
+
+            <div>
+              <label style="font-size: 0.78rem; font-weight: 750; color: var(--text-muted);">Enemy Types &amp; Hazards:</label>
+              <input type="text" id="wizard-enemies" value="Mutant Slimes, Cyber Thugs with bats, and Boss Brute" style="margin-top: 4px;" />
+            </div>
+
+            <button class="btn-primary" id="btn-compile-ai" style="margin-top: 6px;">
+              <svg class="icon icon-sm"><use href="#i-spark"/></svg> Compile Game with GPT-6 Astra
+            </button>
+          </div>
+
+          <!-- Iterative Chat Console -->
+          <div class="card">
+            <div class="card-title"><svg class="icon"><use href="#i-code"/></svg> Iterative Tuning Console</div>
+            <div style="font-size: 0.82rem; color: var(--text-muted);">
+              Ask GPT-6 Astra to tune mechanics (e.g. <em>"Make enemies faster"</em>, <em>"Add health pizzas"</em>, <em>"Change gravity to moon physics"</em>).
+            </div>
+
+            <div id="ai-chat-history" style="background: #090d16; border: 1px solid var(--card-border); border-radius: 8px; padding: 12px; height: 180px; overflow-y: auto; font-size: 0.84rem; display: flex; flex-direction: column; gap: 8px;">
+              <div style="color: var(--accent-emerald);">[ArcadeForge AI v1.0 Ready — GPT-6 Astra Online]</div>
+              <div style="color: var(--text-muted);">Current Game: Mutant Alley Brawler compiled.</div>
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="iterative-chat-input" placeholder="Tweak game (e.g. 'Add flying kicks and more enemies')..." />
+              <button class="btn-primary" id="btn-send-tweak"><svg class="icon icon-sm"><use href="#i-send"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. MOBILE QR CODE SCAN VIEW -->
+      <div id="view-qr" class="view-panel">
+        <div class="card" style="text-align: center; padding: 36px 20px; max-width: 500px; margin: 0 auto; width: 100%;">
+          <div style="font-size: 1.35rem; font-weight: 850; color: var(--primary);">Scan to Design &amp; Play on Phone</div>
+          <p style="font-size: 0.86rem; color: var(--text-muted); margin: 6px 0 20px 0;">
+            Point your smartphone camera at this QR code to open the Mobile Arcade Studio and touch controls directly on your phone:
+          </p>
+
+          <div id="qrcode-container" style="background: #ffffff; padding: 16px; border-radius: 12px; display: inline-block; margin: 0 auto;"></div>
+
+          <div style="margin-top: 20px; font-size: 0.8rem; color: var(--text-muted); word-break: break-all;" id="qr-url-text"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // SHA-256 Passcode Gate & Encrypted OpenAI Key Cipher
+    const TARGET_SHA256_HASH = "08fa66ff907640fbeef915b4d0074cb8e359c0bcac336fc2805be4fd7500483b";
+    const ENCRYPTED_OPENAI_KEY_CIPHER = "IBtMAhlfXB92YRR5Yms8GQgFZH97VXBgCWM2FClDCXRMBXRUQRxAZz8oFQ1WXXdrAwt4cwFCCRkfVEFle0BSdVgUHBUwWEVzf0Z8QUZgIEISGT8DdF5RWn97QwEmEkMRc1JfWkFednYSQjcbDEpzWGdWa1UAADsoNVtFXApJBAFJfB8KJyUoWUNidGlrA1MLHDU+PlhQfUJ+U3pIOkETXx9Gb3M=";
+
+    let openaiApiKey = "";
+
+    // Web Audio 8-Bit Chiptune Synthesizer
+    let audioCtx = null;
+    function playRetroSound(type) {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+
+        if (type === 'hit') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(140, now);
+          osc.frequency.exponentialRampToValueAtTime(40, now + 0.12);
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.linearRampToValueAtTime(0, now + 0.12);
+          osc.start(now); osc.stop(now + 0.12);
+        } else if (type === 'jump') {
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(180, now);
+          osc.frequency.exponentialRampToValueAtTime(450, now + 0.15);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.linearRampToValueAtTime(0, now + 0.15);
+          osc.start(now); osc.stop(now + 0.15);
+        } else if (type === 'win') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.setValueAtTime(554, now + 0.1);
+          osc.frequency.setValueAtTime(659, now + 0.2);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.linearRampToValueAtTime(0, now + 0.35);
+          osc.start(now); osc.stop(now + 0.35);
+        }
+      } catch(e) {}
+    }
+
+    // Cryptographic Helpers
+    async function computeSHA256(str) {
+      const msgBuffer = new TextEncoder().encode(str);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function xorDecrypt(cipherB64, keyStr) {
+      try {
+        const keyBytes = new TextEncoder().encode(keyStr);
+        const binaryStr = atob(cipherB64);
+        const decrypted = new Uint8Array(binaryStr.length);
+        for (let i = 0; i < binaryStr.length; i++) {
+          decrypted[i] = binaryStr.charCodeAt(i) ^ keyBytes[i % keyBytes.length];
+        }
+        return new TextDecoder().decode(decrypted);
+      } catch (e) {
+        return "";
+      }
+    }
+
+    // Auth Unlock Gate
+    async function unlockApp() {
+      const pass = document.getElementById('auth-password').value.trim();
+      const err = document.getElementById('auth-error');
+
+      let valid = false;
+      try {
+        const computed = await computeSHA256(pass);
+        valid = (computed === TARGET_SHA256_HASH);
+      } catch(e) {}
+
+      if (valid) {
+        openaiApiKey = xorDecrypt(ENCRYPTED_OPENAI_KEY_CIPHER, pass);
+        err.style.display = 'none';
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('app-shell').style.display = 'flex';
+        sessionStorage.setItem('arcade_forge_auth', TARGET_SHA256_HASH);
+        initArcadeApp();
+      } else {
+        err.style.display = 'block';
+      }
+    }
+
+    document.getElementById('btn-unlock').onclick = unlockApp;
+    document.getElementById('auth-password').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); unlockApp(); }
+    });
+
+    document.getElementById('btn-lock-app').onclick = () => {
+      sessionStorage.removeItem('arcade_forge_auth');
+      openaiApiKey = "";
+      document.getElementById('app-shell').style.display = 'none';
+      document.getElementById('auth-screen').style.display = 'flex';
+      document.getElementById('auth-password').value = "";
+    };
+
+    // Navigation Tabs
+    function switchNav(viewId) {
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.view-panel').forEach(v => v.classList.remove('active'));
+
+      const tab = Array.from(document.querySelectorAll('.nav-tab')).find(t => t.getAttribute('data-view') === viewId);
+      if (tab) tab.classList.add('active');
+
+      const panel = document.getElementById(viewId);
+      if (panel) panel.classList.add('active');
+    }
+
+    document.querySelectorAll('.nav-tab').forEach(t => {
+      t.onclick = () => switchNav(t.getAttribute('data-view'));
+    });
+
+    // Retro Arcade Game Engine (Beat 'Em Up & Multi-Genre Canvas)
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+
+    let gameState = {
+      genre: 'beatemup',
+      title: 'Mutant Alley Brawler',
+      score: 0,
+      hp: 100,
+      wave: 1,
+      player: { x: 50, y: 240, vx: 0, vy: 0, w: 28, h: 48, state: 'idle', isAttacking: false, attackTimer: 0 },
+      enemies: [
+        { x: 280, y: 240, hp: 30, w: 26, h: 46, color: '#f43f5e', speed: 1.2 },
+        { x: 380, y: 250, hp: 40, w: 30, h: 48, color: '#ec4899', speed: 0.9 }
+      ],
+      particles: []
+    };
+
+    const keys = { left: false, right: false, up: false, down: false, a: false, b: false };
+
+    // Keyboard controls
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = true;
+      if (e.key === 'ArrowRight' || e.key === 'd') keys.right = true;
+      if (e.key === 'ArrowUp' || e.key === 'w') keys.up = true;
+      if (e.key === 'ArrowDown' || e.key === 's') keys.down = true;
+      if (e.key === ' ' || e.key === 'z') { keys.a = true; handleJump(); }
+      if (e.key === 'x') { keys.b = true; handleAttack(); }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = false;
+      if (e.key === 'ArrowRight' || e.key === 'd') keys.right = false;
+      if (e.key === 'ArrowUp' || e.key === 'w') keys.up = false;
+      if (e.key === 'ArrowDown' || e.key === 's') keys.down = false;
+      if (e.key === ' ' || e.key === 'z') keys.a = false;
+      if (e.key === 'x') keys.b = false;
+    });
+
+    // Touch Virtual D-Pad Bindings
+    function bindTouch(elementId, keyName, onDownAction) {
+      const el = document.getElementById(elementId);
+      const press = (e) => { e.preventDefault(); keys[keyName] = true; if (onDownAction) onDownAction(); };
+      const release = (e) => { e.preventDefault(); keys[keyName] = false; };
+      el.addEventListener('mousedown', press);
+      el.addEventListener('mouseup', release);
+      el.addEventListener('touchstart', press, { passive: false });
+      el.addEventListener('touchend', release, { passive: false });
+    }
+
+    bindTouch('dpad-left', 'left');
+    bindTouch('dpad-right', 'right');
+    bindTouch('dpad-up', 'up');
+    bindTouch('dpad-down', 'down');
+    bindTouch('btn-action-a', 'a', handleJump);
+    bindTouch('btn-action-b', 'b', handleAttack);
+
+    function handleJump() {
+      if (gameState.player.y >= 230) {
+        gameState.player.vy = -8.5;
+        playRetroSound('jump');
+      }
+    }
+
+    function handleAttack() {
+      if (!gameState.player.isAttacking) {
+        gameState.player.isAttacking = true;
+        gameState.player.attackTimer = 12;
+        playRetroSound('hit');
+
+        // Hit detection on enemies
+        gameState.enemies.forEach(en => {
+          const dist = Math.abs((gameState.player.x + 20) - en.x);
+          if (dist < 42 && Math.abs(gameState.player.y - en.y) < 25) {
+            en.hp -= 15;
+            en.x += 16; // knockback
+            gameState.score += 50;
+            document.getElementById('hud-score').textContent = gameState.score;
+            for (let i = 0; i < 6; i++) {
+              gameState.particles.push({ x: en.x, y: en.y + 20, vx: (Math.random()-0.5)*4, vy: (Math.random()-0.5)*4, life: 16 });
+            }
+          }
+        });
+      }
+    }
+
+    // Main 60FPS Game Loop
+    function gameLoop() {
+      updateGame();
+      drawGame();
+      requestAnimationFrame(gameLoop);
+    }
+
+    function updateGame() {
+      const p = gameState.player;
+
+      // Horizontal move
+      if (keys.left) p.x -= 3.2;
+      if (keys.right) p.x += 3.2;
+      if (keys.up && p.y > 180) p.y -= 2;
+      if (keys.down && p.y < 280) p.y += 2;
+
+      // Gravity & Jump physics
+      p.y += p.vy;
+      if (p.y < 240) {
+        p.vy += 0.55;
+      } else {
+        p.y = 240;
+        p.vy = 0;
+      }
+
+      // Bound clamp
+      p.x = Math.max(10, Math.min(canvas.width - p.w - 10, p.x));
+
+      // Attack timer
+      if (p.isAttacking) {
+        p.attackTimer--;
+        if (p.attackTimer <= 0) p.isAttacking = false;
+      }
+
+      // Update enemies AI
+      gameState.enemies.forEach(en => {
+        if (en.hp > 0) {
+          if (en.x > p.x + 24) en.x -= en.speed;
+          if (en.x < p.x - 24) en.x += en.speed;
+
+          // Enemy attack player
+          if (Math.abs(en.x - p.x) < 28 && Math.abs(en.y - p.y) < 20) {
+            if (Math.random() < 0.02) {
+              gameState.hp = Math.max(0, gameState.hp - 3);
+              document.getElementById('hud-hp').textContent = gameState.hp;
+              playRetroSound('hit');
+            }
+          }
+        }
+      });
+
+      // Filter dead enemies & respawn next wave
+      const aliveEnemies = gameState.enemies.filter(en => en.hp > 0);
+      if (aliveEnemies.length === 0) {
+        gameState.wave++;
+        document.getElementById('hud-wave').textContent = gameState.wave;
+        playRetroSound('win');
+        gameState.enemies = [
+          { x: 320, y: 220, hp: 40 + gameState.wave*10, w: 28, h: 46, color: '#f43f5e', speed: 1.3 },
+          { x: 420, y: 250, hp: 50 + gameState.wave*10, w: 32, h: 50, color: '#a855f7', speed: 1.1 }
+        ];
+      }
+
+      // Update particles
+      gameState.particles.forEach(pt => { pt.x += pt.vx; pt.y += pt.vy; pt.life--; });
+      gameState.particles = gameState.particles.filter(pt => pt.life > 0);
+    }
+
+    function drawGame() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // 1. Retro Background (Neon Alley / Horizon)
+      const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      grad.addColorStop(0, '#0c1020');
+      grad.addColorStop(0.65, '#1e1b4b');
+      grad.addColorStop(0.66, '#182030');
+      grad.addColorStop(1, '#0f1422');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Grid perspective lines on ground
+      ctx.strokeStyle = '#2d3748';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < canvas.width; x += 40) {
+        ctx.beginPath();
+        ctx.moveTo(x, 240);
+        ctx.lineTo(x * 1.3 - 60, canvas.height);
+        ctx.stroke();
+      }
+
+      // 2. Draw Player (Retro Sprite)
+      const p = gameState.player;
+      ctx.fillStyle = '#06b6d4'; // Cyan Hero Suit
+      ctx.fillRect(p.x, p.y, p.w, p.h);
+      ctx.fillStyle = '#fef08a'; // Hero Head
+      ctx.fillRect(p.x + 4, p.y - 14, 20, 14);
+
+      // Punch fist
+      if (p.isAttacking) {
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(p.x + p.w, p.y + 14, 16, 10);
+      }
+
+      // 3. Draw Enemies
+      gameState.enemies.forEach(en => {
+        if (en.hp > 0) {
+          ctx.fillStyle = en.color;
+          ctx.fillRect(en.x, en.y, en.w, en.h);
+          ctx.fillStyle = '#4ade80'; // Eyes
+          ctx.fillRect(en.x + 4, en.y + 8, 5, 5);
+
+          // Enemy health bar
+          ctx.fillStyle = '#334155';
+          ctx.fillRect(en.x, en.y - 8, en.w, 4);
+          ctx.fillStyle = '#ef4444';
+          ctx.fillRect(en.x, en.y - 8, (en.hp / 40) * en.w, 4);
+        }
+      });
+
+      // 4. Draw Particles
+      gameState.particles.forEach(pt => {
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(pt.x, pt.y, 3, 3);
+      });
+    }
+
+    // QR Code Generator
+    function initQRCode() {
+      const qrContainer = document.getElementById('qrcode-container');
+      qrContainer.innerHTML = "";
+      const currentUrl = window.location.href;
+      document.getElementById('qr-url-text').textContent = currentUrl;
+      new QRCode(qrContainer, {
+        text: currentUrl,
+        width: 220,
+        height: 220,
+        colorDark: "#0a0e17",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    }
+
+    // GPT-6 Astra Compilation & Iteration
+    async function callGPT6Astra(promptText) {
+      if (!openaiApiKey) throw new Error("OpenAI API key unlocked.");
+      const res = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${openaiApiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "gpt-6-astra",
+          messages: [
+            {
+              role: "system",
+              content: "You are the ArcadeForge Game Compiler engine. You iteratively design retro 2D games and output game configuration and Python Pygame source code."
+            },
+            { role: "user", content: promptText }
+          ],
+          temperature: 0.7
+        })
+      });
+      if (!res.ok) throw new Error(`OpenAI API error: ${res.status}`);
+      const data = await res.json();
+      return data.choices[0].message.content;
+    }
+
+    document.getElementById('btn-compile-ai').onclick = async () => {
+      const genre = document.getElementById('wizard-genre').value;
+      const theme = document.getElementById('wizard-theme').value.trim();
+      const hero = document.getElementById('wizard-hero').value.trim();
+      const enemies = document.getElementById('wizard-enemies').value.trim();
+
+      const btn = document.getElementById('btn-compile-ai');
+      btn.disabled = true;
+      btn.textContent = "Compiling with GPT-6 Astra...";
+
+      const prompt = `Compile a retro arcade game specification:
+Genre: ${genre}
+Theme: ${theme}
+Hero: ${hero}
+Enemies: ${enemies}
+
+Return a concise summary with:
+1. Game Title
+2. Mechanics Tuning
+3. Victory Condition`;
+
+      try {
+        const reply = await callGPT6Astra(prompt);
+        gameState.title = `${theme} Arcade`;
+        document.getElementById('game-title-display').textContent = gameState.title;
+        document.getElementById('game-genre-badge').textContent = genre.toUpperCase();
+
+        const history = document.getElementById('ai-chat-history');
+        history.innerHTML += `<div style="color: var(--primary); margin-top: 8px;"><strong>GPT-6 Astra:</strong> ${reply.replace(/\n/g, '<br>')}</div>`;
+        history.scrollTop = history.scrollHeight;
+        switchNav('view-arcade');
+      } catch(e) {
+        alert("Compilation error: " + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Compile Game with GPT-6 Astra";
+      }
+    };
+
+    document.getElementById('btn-send-tweak').onclick = async () => {
+      const input = document.getElementById('iterative-chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = "";
+
+      const history = document.getElementById('ai-chat-history');
+      history.innerHTML += `<div style="color: #ffffff; margin-top: 6px;"><strong>You:</strong> ${text}</div>`;
+      history.scrollTop = history.scrollHeight;
+
+      try {
+        const reply = await callGPT6Astra(`The user wants to iteratively tune the retro arcade game "${gameState.title}": ${text}. Suggest parameter adjustments.`);
+        history.innerHTML += `<div style="color: var(--primary); margin-top: 4px;"><strong>GPT-6 Astra:</strong> ${reply.replace(/\n/g, '<br>')}</div>`;
+        history.scrollTop = history.scrollHeight;
+      } catch(e) {
+        history.innerHTML += `<div style="color: var(--accent-rose);">Error: ${e.message}</div>`;
+      }
+    };
+
+    // Python Pygame Export Generator
+    document.getElementById('btn-export-python').onclick = () => {
+      const pyCode = `# ==============================================================
+# ArcadeForge AI — Standalone Python Pygame Game
+# Compiled by GPT-6 Astra
+# Title: ${gameState.title} (${gameState.genre})
+# ==============================================================
+import pygame
+import sys
+import random
+
+pygame.init()
+WIDTH, HEIGHT = 640, 480
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("${gameState.title}")
+clock = pygame.time.Clock()
+
+# Colors
+BG_COLOR = (18, 27, 46)
+HERO_COLOR = (6, 182, 212)
+ENEMY_COLOR = (244, 63, 94)
+
+player_x, player_y = 60, 320
+player_vy = 0
+is_jumping = False
+score = 0
+hp = 100
+
+enemies = [{'x': 400 + i*160, 'y': 320, 'hp': 30} for i in range(3)]
+
+running = True
+while running:
+    clock.tick(60)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE and not is_jumping:
+                player_vy = -12
+                is_jumping = True
+
+    # Controls
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT]: player_x -= 4
+    if keys[pygame.K_RIGHT]: player_x += 4
+
+    # Gravity
+    player_y += player_vy
+    if player_y < 320:
+        player_vy += 0.6
+    else:
+        player_y = 320
+        player_vy = 0
+        is_jumping = False
+
+    # Render
+    screen.fill(BG_COLOR)
+    pygame.draw.rect(screen, HERO_COLOR, (player_x, player_y, 32, 48))
+    for en in enemies:
+        pygame.draw.rect(screen, ENEMY_COLOR, (en['x'], en['y'], 32, 48))
+
+    pygame.display.flip()
+
+pygame.quit()
+sys.exit()
+`;
+      const blob = new Blob([pyCode], { type: 'text/x-python' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `game.py`;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    function initArcadeApp() {
+      initQRCode();
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Auto-restore session if previously unlocked
+    window.addEventListener('DOMContentLoaded', () => {
+      if (sessionStorage.getItem('arcade_forge_auth') === TARGET_SHA256_HASH) {
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('app-shell').style.display = 'flex';
+        initArcadeApp();
+      }
+    });
+  </script>
+</body>
+</html>
