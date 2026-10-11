@@ -3,33 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>ArcadeForge AI — 16-Bit SNES Retro Arcade Studio</title>
+  <title>ArcadeForge AI — 16-Bit SNES Retro Arcade Studio & Texture Lab</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <style>
     :root {
-      --bg-dark: #070a13;
-      --cabinet-bg: #0f1626;
-      --card-bg: #141c2e;
-      --card-border: #1f2c45;
+      --bg-dark: #05070f;
+      --bezel-outer: #121826;
+      --bezel-inner: #0b0f19;
       --snes-purple: #7057a6;
-      --snes-lavender: #a389d4;
-      --snes-gray: #c8c9ce;
-      --arcade-amber: #f59e0b;
-      --arcade-cyan: #06b6d4;
-      --arcade-emerald: #10b981;
-      --arcade-rose: #f43f5e;
+      --snes-lavender: #b39ddb;
+      --snes-gray: #d1d5db;
+      --neon-amber: #f59e0b;
+      --neon-cyan: #06b6d4;
+      --neon-emerald: #10b981;
+      --neon-rose: #f43f5e;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      --shadow-glow: 0 0 25px rgba(112, 87, 166, 0.25);
     }
 
     * { box-sizing: border-box; }
     body, html {
       margin: 0; padding: 0; width: 100%; height: 100%;
-      background-color: var(--bg-dark); color: var(--text-main);
-      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      font-size: 14.5px; line-height: 1.55; letter-spacing: -0.005em;
-      overflow-x: hidden; touch-action: manipulation;
+      background: radial-gradient(circle at 50% 20%, #111827 0%, #030712 100%);
+      color: var(--text-main); font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14px; line-height: 1.5; overflow-x: hidden; touch-action: manipulation;
     }
 
     /* SVG Icons */
@@ -37,152 +34,178 @@
     .icon-sm { width: 14px; height: 14px; }
     .icon-lg { width: 28px; height: 28px; }
 
-    /* Top Navigation Header */
+    /* Top Arcade Header Bar */
     header {
-      background: #0b111e; border-bottom: 1px solid var(--card-border);
-      padding: 0 clamp(14px, 3vw, 24px); display: flex; justify-content: space-between;
-      align-items: center; min-height: 58px; position: sticky; top: 0; z-index: 1000;
+      background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid #1f293d; padding: 0 clamp(12px, 3vw, 24px);
+      display: flex; justify-content: space-between; align-items: center; min-height: 58px;
+      position: sticky; top: 0; z-index: 1000;
     }
-    .brand { font-size: 1.1rem; font-weight: 850; color: #ffffff; display: flex; align-items: center; gap: 10px; letter-spacing: -0.02em; }
-    .brand-mark { width: 34px; height: 34px; display: grid; place-items: center; color: #ffffff; background: linear-gradient(135deg, var(--snes-purple), var(--snes-lavender)); border-radius: 8px; }
+    .brand { font-size: 1.15rem; font-weight: 900; color: #fff; display: flex; align-items: center; gap: 10px; letter-spacing: -0.02em; }
+    .brand-marquee {
+      background: linear-gradient(90deg, #f59e0b, #ef4444, #8b5cf6, #06b6d4);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 20px rgba(245, 158, 11, 0.4); font-family: ui-monospace, monospace; font-weight: 900;
+    }
 
-    /* Navigation Tabs */
-    .nav-tabs { display: flex; gap: 4px; overflow-x: auto; }
-    .nav-tab {
-      background: transparent; border: none; border-bottom: 2px solid transparent; padding: 16px 12px; font-weight: 600;
-      font-size: 0.84rem; color: var(--text-muted); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+    /* Navigation Mode Pills */
+    .mode-pills { display: flex; gap: 6px; background: #0b0f19; padding: 4px; border-radius: 999px; border: 1px solid #1f293d; }
+    .mode-pill {
+      background: transparent; border: none; padding: 7px 14px; font-weight: 700; font-size: 0.8rem;
+      color: var(--text-muted); border-radius: 999px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
       transition: all 0.15s ease;
     }
-    .nav-tab:hover { color: var(--text-main); }
-    .nav-tab.active { color: var(--arcade-amber); border-bottom-color: var(--arcade-amber); font-weight: 750; }
+    .mode-pill:hover { color: #fff; }
+    .mode-pill.active { background: linear-gradient(135deg, var(--snes-purple), #4f3b78); color: #fff; box-shadow: 0 2px 8px rgba(112, 87, 166, 0.4); }
 
     /* Main Container */
     main {
-      max-width: 1180px; margin: 0 auto; padding: 20px clamp(12px, 3vw, 24px) 60px;
-      display: flex; flex-direction: column; gap: 18px;
+      max-width: 1240px; margin: 0 auto; padding: 18px clamp(10px, 3vw, 24px) 60px;
+      display: flex; flex-direction: column; gap: 16px;
     }
-
-    /* Cards */
-    .card {
-      background: var(--card-bg); border: 1px solid var(--card-border);
-      border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4);
-      display: flex; flex-direction: column; gap: 14px;
-    }
-    .card-title { font-size: 1.08rem; font-weight: 750; color: var(--text-main); display: flex; align-items: center; gap: 9px; }
-
-    /* Buttons */
-    button.btn-primary {
-      background: linear-gradient(135deg, #f59e0b, #d97706); color: #0a0e17; font-weight: 800;
-      border: none; border-radius: 7px; padding: 9px 16px; font-size: 0.88rem;
-      min-height: 40px; cursor: pointer; display: inline-flex; align-items: center;
-      justify-content: center; gap: 7px; transition: transform 0.1s ease, box-shadow 0.15s ease;
-    }
-    button.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3); }
-
-    button.btn-snes {
-      background: linear-gradient(135deg, var(--snes-purple), #4f3b78); color: #ffffff; font-weight: 750;
-      border: 1px solid #8b72c2; border-radius: 7px; padding: 9px 16px; font-size: 0.88rem;
-      min-height: 40px; cursor: pointer; display: inline-flex; align-items: center;
-      justify-content: center; gap: 7px;
-    }
-    button.btn-snes:hover { background: var(--snes-lavender); }
-
-    button.btn-secondary {
-      background: #19243a; color: var(--text-main); border: 1px solid var(--card-border);
-      border-radius: 7px; padding: 8px 14px; font-size: 0.84rem; font-weight: 600;
-      min-height: 38px; cursor: pointer; display: inline-flex; align-items: center;
-      justify-content: center; gap: 6px;
-    }
-    button.btn-secondary:hover { background: #223250; }
-
-    input, select, textarea {
-      width: 100%; padding: 10px 12px; background: #0c1220;
-      border: 1px solid var(--card-border); color: var(--text-main);
-      border-radius: 7px; font-size: 14px; outline: none;
-    }
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--arcade-amber); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
-    }
-
-    /* Badges */
-    .badge {
-      padding: 3px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 800;
-      letter-spacing: 0.04em; display: inline-flex; align-items: center; gap: 4px; text-transform: uppercase;
-    }
-    .badge-amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-    .badge-snes { background: rgba(112, 87, 166, 0.2); color: #c4b5fd; border: 1px solid #7c3aed; }
-    .badge-emerald { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
-
-    /* SNES Arcade Cabinet */
-    .arcade-cabinet {
-      background: #090e1a; border: 2px solid #23314f; border-radius: 16px;
-      padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 14px;
-      box-shadow: 0 0 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(112, 87, 166, 0.1);
-      position: relative;
-    }
-
-    .screen-wrapper {
-      position: relative; width: 100%; max-width: 640px; aspect-ratio: 4 / 3;
-      border: 4px solid #1a233a; border-radius: 10px; overflow: hidden;
-      box-shadow: inset 0 0 20px rgba(0,0,0,0.9), 0 0 25px rgba(245, 158, 11, 0.15);
-    }
-    canvas#game-canvas {
-      width: 100%; height: 100%; display: block; background: #000000;
-      image-rendering: pixelated;
-    }
-    /* CRT Scanline Overlay */
-    .crt-scanlines {
-      position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
-      background-size: 100% 4px; z-index: 5; opacity: 0.6;
-    }
-
-    /* Virtual SNES Touch Controller */
-    .snes-controller-board {
-      background: #181d2c; border: 2px solid #2a344d; border-radius: 36px;
-      padding: 16px 24px; display: flex; justify-content: space-between; align-items: center;
-      width: 100%; max-width: 620px; box-shadow: 0 6px 16px rgba(0,0,0,0.6);
-      user-select: none; -webkit-user-select: none; margin-top: 6px;
-    }
-    .dpad-container {
-      display: grid; grid-template-columns: repeat(3, 48px); grid-template-rows: repeat(3, 48px);
-      gap: 3px; justify-content: center; align-content: center;
-    }
-    .dpad-btn {
-      background: #252d42; color: #94a3b8; border: 1px solid #384566; border-radius: 6px;
-      display: grid; place-items: center; font-size: 1.15rem; font-weight: 800; cursor: pointer;
-      touch-action: none; transition: background 0.08s ease;
-    }
-    .dpad-btn:active { background: var(--arcade-amber); color: #0a0e17; }
-
-    .snes-buttons-diamond {
-      display: grid; grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(3, 46px);
-      gap: 4px; justify-content: center; align-content: center; transform: rotate(-12deg);
-    }
-    .snes-round-btn {
-      width: 48px; height: 48px; border-radius: 50%; font-weight: 900; font-size: 1.05rem;
-      border: 2px solid; display: grid; place-items: center; cursor: pointer;
-      touch-action: none; transition: transform 0.08s ease; user-select: none;
-    }
-    .snes-round-btn:active { transform: scale(0.9); }
-    .btn-snes-y { background: #261f38; border-color: var(--snes-lavender); color: var(--snes-lavender); }
-    .btn-snes-x { background: #1f2742; border-color: var(--arcade-cyan); color: var(--arcade-cyan); }
-    .btn-snes-b { background: #451a03; border-color: var(--arcade-amber); color: var(--arcade-amber); }
-    .btn-snes-a { background: #4c0519; border-color: var(--arcade-rose); color: var(--arcade-rose); }
 
     /* Screen Views */
     .view-panel { display: none; flex-direction: column; gap: 16px; }
     .view-panel.active { display: flex; }
+
+    /* Arcade Cabinet Bezel (Retro Hardware Styling) */
+    .cabinet-frame {
+      background: linear-gradient(180deg, #182030 0%, #0d121c 100%);
+      border: 3px solid #28354d; border-radius: 20px; padding: clamp(12px, 2.5vw, 20px);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 2px 4px rgba(255,255,255,0.1);
+      display: flex; flex-direction: column; align-items: center; gap: 14px; position: relative;
+    }
+
+    /* Speaker Grill Header */
+    .speaker-grill {
+      width: 100%; max-width: 680px; display: flex; justify-content: space-between; align-items: center;
+      padding-bottom: 8px; border-bottom: 2px solid #1b2436; font-family: ui-monospace, monospace;
+    }
+    .coin-slot {
+      background: #090d15; border: 1px solid #28354d; border-radius: 6px; padding: 4px 10px;
+      font-size: 0.72rem; font-weight: 850; color: var(--neon-amber); display: flex; align-items: center; gap: 6px;
+    }
+    .coin-light { width: 8px; height: 8px; border-radius: 50%; background: var(--neon-amber); box-shadow: 0 0 8px var(--neon-amber); animation: pulse-blink 1.2s infinite; }
+    @keyframes pulse-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    /* The Screen Wrapper */
+    .crt-cabinet-screen {
+      position: relative; width: 100%; max-width: 680px; aspect-ratio: 4 / 3;
+      border: 6px solid #090c14; border-radius: 12px; overflow: hidden;
+      background: #000; box-shadow: inset 0 0 35px rgba(0,0,0,0.95), 0 0 30px rgba(6, 182, 212, 0.15);
+    }
+    canvas#game-canvas {
+      width: 100%; height: 100%; display: block; image-rendering: pixelated;
+    }
+    /* CRT Scanlines & Curved Glass Glare */
+    .crt-scanlines {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.28) 50%);
+      background-size: 100% 4px; z-index: 6; opacity: 0.65;
+    }
+    .crt-glare {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;
+      background: radial-gradient(circle at 20% 15%, rgba(255,255,255,0.08) 0%, transparent 60%);
+      z-index: 7;
+    }
+
+    /* Virtual SNES Hardware Controller */
+    .snes-controller-hardware {
+      background: linear-gradient(180deg, #d8d9de 0%, #b8bac2 100%);
+      border: 3px solid #8e919c; border-radius: 40px;
+      padding: clamp(10px, 2vw, 16px) clamp(16px, 3vw, 28px);
+      display: flex; justify-content: space-between; align-items: center;
+      width: 100%; max-width: 640px; box-shadow: 0 8px 24px rgba(0,0,0,0.7), inset 0 2px 3px rgba(255,255,255,0.8);
+      user-select: none; -webkit-user-select: none; margin-top: 4px;
+    }
+    .dpad-container {
+      display: grid; grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(3, 46px);
+      gap: 3px; justify-content: center; align-content: center;
+    }
+    .dpad-btn {
+      background: #2b313d; color: #94a3b8; border: 1px solid #1a1e26; border-radius: 5px;
+      display: grid; place-items: center; font-size: 1.15rem; font-weight: 900; cursor: pointer;
+      touch-action: none; transition: background 0.08s ease;
+    }
+    .dpad-btn:active { background: var(--neon-amber); color: #0a0e17; }
+
+    .center-logo-pills {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .snes-emboss { font-size: 0.72rem; font-weight: 900; color: #525666; letter-spacing: 0.12em; text-transform: uppercase; }
+
+    .snes-buttons-diamond {
+      display: grid; grid-template-columns: repeat(3, 44px); grid-template-rows: repeat(3, 44px);
+      gap: 4px; justify-content: center; align-content: center; transform: rotate(-14deg);
+    }
+    .snes-round-btn {
+      width: 46px; height: 46px; border-radius: 50%; font-weight: 900; font-size: 1rem;
+      border: 2px solid; display: grid; place-items: center; cursor: pointer;
+      touch-action: none; transition: transform 0.06s ease; user-select: none;
+    }
+    .snes-round-btn:active { transform: scale(0.9); }
+    .btn-snes-y { background: #3c2a63; border-color: var(--snes-lavender); color: var(--snes-lavender); }
+    .btn-snes-x { background: #0e2a38; border-color: var(--neon-cyan); color: var(--neon-cyan); }
+    .btn-snes-b { background: #542205; border-color: var(--neon-amber); color: var(--neon-amber); }
+    .btn-snes-a { background: #52081c; border-color: var(--neon-rose); color: var(--neon-rose); }
+
+    /* Cards & Layout */
+    .card {
+      background: #0d1320; border: 1px solid #1c273c;
+      border-radius: 14px; padding: 22px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.5);
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .card-title { font-size: 1.1rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+
+    /* Texture Studio Grid */
+    .texture-palette-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-top: 8px;
+    }
+    .texture-card {
+      background: #090e18; border: 1px solid #1c273c; border-radius: 10px; padding: 12px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .texture-card:hover, .texture-card.active { border-color: var(--neon-cyan); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2); }
+    .texture-thumb {
+      width: 56px; height: 56px; border-radius: 6px; border: 1px solid #28354d;
+      image-rendering: pixelated; display: block;
+    }
+
+    button.btn-primary {
+      background: linear-gradient(135deg, #f59e0b, #d97706); color: #05070f; font-weight: 800;
+      border: none; border-radius: 8px; padding: 10px 18px; font-size: 0.88rem;
+      min-height: 42px; cursor: pointer; display: inline-flex; align-items: center;
+      justify-content: center; gap: 8px; transition: transform 0.1s ease;
+    }
+    button.btn-primary:hover { transform: translateY(-1px); }
+
+    button.btn-secondary {
+      background: #151d2d; color: var(--text-main); border: 1px solid #233149;
+      border-radius: 8px; padding: 8px 14px; font-size: 0.84rem; font-weight: 600;
+      min-height: 38px; cursor: pointer; display: inline-flex; align-items: center;
+      justify-content: center; gap: 6px;
+    }
+    button.btn-secondary:hover { background: #1d283e; }
+
+    input, select, textarea {
+      width: 100%; padding: 11px 13px; background: #080c14;
+      border: 1px solid #1f2b40; color: var(--text-main);
+      border-radius: 8px; font-size: 14px; outline: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--neon-cyan); box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+    }
+
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
-    @media (max-width: 680px) {
+    @media (max-width: 720px) {
       .grid-2 { grid-template-columns: 1fr; }
-      .snes-controller-board { padding: 12px 14px; border-radius: 24px; }
-      .dpad-container { grid-template-columns: repeat(3, 40px); grid-template-rows: repeat(3, 40px); }
-      .snes-buttons-diamond { grid-template-columns: repeat(3, 40px); grid-template-rows: repeat(3, 40px); }
-      .snes-round-btn { width: 42px; height: 42px; font-size: 0.95rem; }
-      header { padding: 0 12px; }
-      main { padding: 14px 10px 48px; }
+      .mode-pills { overflow-x: auto; max-width: 220px; }
+      .snes-controller-hardware { border-radius: 26px; padding: 10px 12px; }
+      .dpad-container { grid-template-columns: repeat(3, 38px); grid-template-rows: repeat(3, 38px); }
+      .snes-buttons-diamond { grid-template-columns: repeat(3, 38px); grid-template-rows: repeat(3, 38px); }
+      .snes-round-btn { width: 40px; height: 40px; font-size: 0.9rem; }
     }
   </style>
 </head>
@@ -193,6 +216,7 @@
     <defs>
       <symbol id="i-gamepad" viewBox="0 0 24 24"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><rect x="2" y="6" width="20" height="12" rx="2"/></symbol>
       <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3 1.4 4.6L18 9l-4.6 1.4L12 15l-1.4-4.6L6 9l4.6-1.4L12 3ZM19 15l.7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7L19 15Z"/></symbol>
+      <symbol id="i-palette" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.563-2.512 5.563-5.563C22 6.5 17.5 2 12 2Z"/></symbol>
       <symbol id="i-qrcode" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="14" width="3" height="3"/><rect x="14" y="18" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></symbol>
       <symbol id="i-code" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></symbol>
       <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
@@ -201,17 +225,17 @@
     </defs>
   </svg>
 
-  <!-- Passcode Protection Gate -->
-  <div id="auth-screen" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #060911; display: flex; justify-content: center; align-items: center; z-index: 999999; padding: 20px;">
-    <div class="card" style="max-width: 400px; width: 100%; text-align: center; padding: 36px 26px;">
-      <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--snes-purple), var(--snes-lavender)); color: #fff; border-radius: 10px; display: grid; place-items: center; margin: 0 auto 14px;">
+  <!-- Passcode Unlock Gate -->
+  <div id="auth-screen" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #05070f; display: flex; justify-content: center; align-items: center; z-index: 999999; padding: 20px;">
+    <div class="card" style="max-width: 420px; width: 100%; text-align: center; padding: 36px 26px; border-color: #28354d; box-shadow: 0 0 40px rgba(112, 87, 166, 0.25);">
+      <div style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--snes-purple), var(--neon-cyan)); color: #fff; border-radius: 12px; display: grid; place-items: center; margin: 0 auto 14px;">
         <svg class="icon icon-lg"><use href="#i-gamepad"/></svg>
       </div>
-      <div style="font-size: 1.35rem; font-weight: 850; color: var(--text-main);">ArcadeForge 16-Bit Studio</div>
-      <p style="font-size: 0.86rem; color: var(--text-muted); margin: 6px 0 20px 0;">Enter security passcode to unlock the Retro SNES Studio:</p>
+      <div style="font-size: 1.4rem; font-weight: 900; color: #fff;">ArcadeForge 16-Bit Studio</div>
+      <p style="font-size: 0.86rem; color: var(--text-muted); margin: 6px 0 20px 0;">Enter security passcode to unlock the Super Famicom Studio:</p>
       <input type="password" id="auth-password" placeholder="Enter security passcode..." autocomplete="off" />
-      <div id="auth-error" style="color: var(--arcade-rose); font-size: 0.8rem; font-weight: 700; display: none; margin-top: 6px;">Invalid Security Passcode</div>
-      <button class="btn-primary" id="btn-unlock" style="width: 100%; margin-top: 14px;">Unlock 16-Bit Studio</button>
+      <div id="auth-error" style="color: var(--neon-rose); font-size: 0.8rem; font-weight: 700; display: none; margin-top: 6px;">Invalid Security Passcode</div>
+      <button class="btn-primary" id="btn-unlock" style="width: 100%; margin-top: 14px;">Power On Arcade Cabinet</button>
     </div>
   </div>
 
@@ -220,49 +244,51 @@
     <!-- Top Header -->
     <header>
       <div class="brand">
-        <span class="brand-mark"><svg class="icon"><use href="#i-gamepad"/></svg></span>
-        <span>ArcadeForge AI <span class="badge badge-snes">16-BIT SNES</span></span>
+        <span class="brand-marquee">ARCADEFORGE</span>
+        <span style="font-size: 0.76rem; padding: 2px 8px; border-radius: 4px; background: #19243a; border: 1px solid #293854; color: var(--neon-cyan); font-weight: 800;">SNES 16-BIT</span>
       </div>
 
-      <nav class="nav-tabs">
-        <button class="nav-tab active" data-view="view-arcade"><svg class="icon icon-sm"><use href="#i-gamepad"/></svg> Arcade Cabinet</button>
-        <button class="nav-tab" data-view="view-designer"><svg class="icon icon-sm"><use href="#i-spark"/></svg> AI Forge (GPT-6 Astra)</button>
-        <button class="nav-tab" data-view="view-qr"><svg class="icon icon-sm"><use href="#i-qrcode"/></svg> Phone QR Scan</button>
+      <!-- Mode Selector Pills -->
+      <nav class="mode-pills">
+        <button class="mode-pill active" data-view="view-arcade"><svg class="icon icon-sm"><use href="#i-gamepad"/></svg> Cabinet</button>
+        <button class="mode-pill" data-view="view-textures"><svg class="icon icon-sm"><use href="#i-palette"/></svg> Texture Lab</button>
+        <button class="mode-pill" data-view="view-designer"><svg class="icon icon-sm"><use href="#i-spark"/></svg> GPT-6 Astra Forge</button>
+        <button class="mode-pill" data-view="view-qr"><svg class="icon icon-sm"><use href="#i-qrcode"/></svg> Phone QR</button>
       </nav>
 
       <div style="display: flex; gap: 8px; align-items: center;">
-        <button class="btn-secondary" id="btn-toggle-scanlines" title="Toggle CRT Scanlines">CRT FX</button>
-        <button class="btn-secondary" id="btn-toggle-music" title="Toggle 16-Bit Music"><svg class="icon icon-sm"><use href="#i-sound"/></svg> BGM</button>
-        <button class="btn-secondary" id="btn-export-python" title="Export Python Pygame code"><svg class="icon icon-sm"><use href="#i-code"/></svg> game.py</button>
-        <button class="btn-secondary" id="btn-lock-app" style="padding: 4px 8px; font-size: 0.78rem;"><svg class="icon icon-sm"><use href="#i-lock"/></svg> Lock</button>
+        <button class="btn-secondary" id="btn-toggle-scanlines" title="CRT Scanlines">CRT FX</button>
+        <button class="btn-secondary" id="btn-toggle-music" title="16-Bit Music"><svg class="icon icon-sm"><use href="#i-sound"/></svg> BGM</button>
+        <button class="btn-secondary" id="btn-lock-app" style="padding: 4px 8px; font-size: 0.78rem;"><svg class="icon icon-sm"><use href="#i-lock"/></svg></button>
       </div>
     </header>
 
     <main>
-      <!-- 1. 16-BIT RETRO ARCADE CABINET VIEW -->
+      <!-- 1. CABINET PLAY VIEW -->
       <div id="view-arcade" class="view-panel active">
-        <div class="arcade-cabinet">
-          <!-- Top HUD Display -->
-          <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 640px; font-family: ui-monospace, monospace;">
-            <div>
-              <span class="badge badge-amber" id="game-genre-badge">BEAT 'EM UP</span>
-              <strong id="game-title-display" style="font-size: 1.05rem; margin-left: 8px; color: #fff;">Simpsons / TMNT Style: Mutant Alley 16-Bit</strong>
+        <div class="cabinet-frame">
+          <!-- Top Speaker Grill & Coin Slot -->
+          <div class="speaker-grill">
+            <div style="display: flex; gap: 12px; align-items: center;">
+              <span class="coin-slot"><span class="coin-light"></span> INSERT COIN</span>
+              <span style="color: var(--neon-cyan); font-size: 0.8rem; font-weight: 800;">CREDITS: 02</span>
             </div>
-            <div style="display: flex; gap: 14px; font-size: 0.88rem; font-weight: 850;">
-              <span style="color: var(--arcade-emerald);">HP: <span id="hud-hp">100</span>%</span>
-              <span style="color: var(--arcade-amber);">1UP: <span id="hud-score">000000</span></span>
+            <div style="display: flex; gap: 16px; font-size: 0.9rem; font-weight: 900;">
+              <span style="color: var(--neon-emerald);">HP: <span id="hud-hp">100</span>%</span>
+              <span style="color: var(--neon-amber);">SCORE: <span id="hud-score">000000</span></span>
               <span style="color: var(--snes-lavender);">STAGE: <span id="hud-stage">1-1</span></span>
             </div>
           </div>
 
-          <!-- Canvas with CRT Scanlines -->
-          <div class="screen-wrapper">
+          <!-- CRT Arcade Screen Wrapper -->
+          <div class="crt-cabinet-screen">
             <div class="crt-scanlines" id="crt-overlay"></div>
+            <div class="crt-glare"></div>
             <canvas id="game-canvas" width="512" height="384"></canvas>
           </div>
 
-          <!-- Virtual SNES Controller (Mobile & Touch Optimized) -->
-          <div class="snes-controller-board">
+          <!-- SNES Controller Hardware Board (Mobile Optimized) -->
+          <div class="snes-controller-hardware">
             <!-- 4-Way D-Pad -->
             <div class="dpad-container">
               <div></div>
@@ -276,7 +302,16 @@
               <div></div>
             </div>
 
-            <!-- Diamond SNES 4-Button Cluster -->
+            <!-- Central Super Famicom Branding -->
+            <div class="center-logo-pills">
+              <span class="snes-emboss">SUPER RETRO</span>
+              <div style="display: flex; gap: 6px;">
+                <div style="width: 14px; height: 3px; background: #64748b; border-radius: 2px;"></div>
+                <div style="width: 14px; height: 3px; background: #64748b; border-radius: 2px;"></div>
+              </div>
+            </div>
+
+            <!-- Diamond Action Buttons -->
             <div class="snes-buttons-diamond">
               <div></div>
               <button class="snes-round-btn btn-snes-x" id="btn-action-x">X<span style="font-size:0.5rem;display:block">SPECIAL</span></button>
@@ -289,73 +324,93 @@
               <div></div>
             </div>
           </div>
+        </div>
+      </div>
 
-          <div style="font-size: 0.78rem; color: var(--text-muted); text-align: center;">
-            Controls: <strong>Arrow Keys / WASD</strong> = Move | <strong>Z</strong> = Jump | <strong>X</strong> = Punch | <strong>C</strong> = Kick | <strong>Space</strong> = Special Attack
+      <!-- 2. GPT ASTRA TEXTURE & PIXEL LAB -->
+      <div id="view-textures" class="view-panel">
+        <div class="card" style="background: linear-gradient(135deg, #0e1626 0%, #1e1b4b 100%); border-color: #3730a3;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div>
+              <div style="font-size: 1.3rem; font-weight: 850; color: #fff;">16-Bit Texture &amp; Pixel Art Generator</div>
+              <p style="font-size: 0.86rem; color: var(--text-muted); margin: 4px 0 0 0;">
+                Use GPT-6 Astra to synthesize 16-bit textures, parallax cityscapes, and tile patterns.
+              </p>
+            </div>
+            <button class="btn-primary" id="btn-gen-texture-ai"><svg class="icon icon-sm"><use href="#i-spark"/></svg> Generate Texture with GPT-6 Astra</button>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <!-- Active Textures Palette -->
+          <div class="card">
+            <div class="card-title"><svg class="icon"><use href="#i-palette"/></svg> Active Stage Textures (Click to Apply)</div>
+            <div class="texture-palette-grid" id="texture-palette-container">
+              <div class="texture-card active" data-tex="cyberpunk">
+                <canvas class="texture-thumb" id="thumb-cyberpunk" width="32" height="32"></canvas>
+                <div style="font-size: 0.78rem; font-weight: 750;">Neo-Tokyo Cyber</div>
+              </div>
+              <div class="texture-card" data-tex="sewer">
+                <canvas class="texture-thumb" id="thumb-sewer" width="32" height="32"></canvas>
+                <div style="font-size: 0.78rem; font-weight: 750;">TMNT Acid Sewer</div>
+              </div>
+              <div class="texture-card" data-tex="dungeon">
+                <canvas class="texture-thumb" id="thumb-dungeon" width="32" height="32"></canvas>
+                <div style="font-size: 0.78rem; font-weight: 750;">Zelda Labyrinth</div>
+              </div>
+              <div class="texture-card" data-tex="sunset">
+                <canvas class="texture-thumb" id="thumb-sunset" width="32" height="32"></canvas>
+                <div style="font-size: 0.78rem; font-weight: 750;">OutRun Sunset</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Prompt Texture Forge -->
+          <div class="card">
+            <div class="card-title"><svg class="icon"><use href="#i-spark"/></svg> Custom Texture Forge</div>
+            <div>
+              <label style="font-size: 0.78rem; font-weight: 750; color: var(--text-muted);">Texture Description / Theme:</label>
+              <input type="text" id="texture-custom-prompt" placeholder="e.g. Glowing radioactive emerald slime bricks or neon skyline" value="Neon Cyberpunk Glass Skyscraper" style="margin-top: 4px;" />
+            </div>
+            <div id="texture-ai-status" style="font-size: 0.82rem; color: var(--neon-cyan); min-height: 20px;"></div>
+            <button class="btn-secondary" id="btn-apply-custom-tex" style="width: 100%;">Synthesize &amp; Hot-Reload Stage Texture</button>
           </div>
         </div>
       </div>
 
-      <!-- 2. AI DESIGN STUDIO (GPT-6 ASTRA) -->
+      <!-- 3. GPT-6 ASTRA FORGE STUDIO -->
       <div id="view-designer" class="view-panel">
-        <div class="card" style="background: linear-gradient(135deg, #121927 0%, #1e1b4b 100%); border-color: #312e81;">
-          <span class="badge badge-snes">POWERED BY GPT-6 ASTRA</span>
-          <div style="font-size: 1.4rem; font-weight: 850; color: var(--text-main); margin-top: 2px;">
-            16-Bit Retro Game Compiler Studio
-          </div>
-          <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">
-            Collaborate iteratively with GPT-6 Astra to engineer pixel mechanics, custom moves, enemy AI, and 16-bit palettes.
-          </p>
-        </div>
-
         <div class="grid-2">
-          <!-- Design Wizard Inputs -->
           <div class="card">
             <div class="card-title"><svg class="icon"><use href="#i-spark"/></svg> SNES Architecture Wizard</div>
-            
             <div>
               <label style="font-size: 0.78rem; font-weight: 750; color: var(--text-muted);">Arcade Genre:</label>
               <select id="wizard-genre" style="margin-top: 4px;">
                 <option value="beatemup">2.5D Belt-Scrolling Beat 'Em Up (Simpsons / TMNT Arcade)</option>
-                <option value="platformer">16-Bit Platformer (Mega Man X / Super Mario World)</option>
-                <option value="roguelike">Top-Down Dungeon Crawler &amp; Rogue-like (Zelda: LTTP)</option>
-                <option value="shmup">Mode-7 Space Shmup (Gradius III / Star Fox)</option>
-                <option value="boardgame">Retro Turn-Based Strategy (Tactics Ogre / Fire Emblem)</option>
+                <option value="platformer">16-Bit Platformer (Mega Man X / Mario World)</option>
+                <option value="roguelike">Top-Down Dungeon Crawler (Zelda: LTTP)</option>
+                <option value="shmup">Mode-7 Space Shmup (Gradius III)</option>
               </select>
             </div>
-
             <div>
-              <label style="font-size: 0.78rem; font-weight: 750; color: var(--text-muted);">Theme &amp; Setting:</label>
-              <input type="text" id="wizard-theme" value="Neo-Tokyo Mutant Sewer Cyberpunk" style="margin-top: 4px;" />
+              <label style="font-size: 0.78rem; font-weight: 750; color: var(--text-muted);">Hero Character &amp; Moves:</label>
+              <input type="text" id="wizard-hero" value="Cyber Ronin with Plasma Katana &amp; Whirlwind Kick" style="margin-top: 4px;" />
             </div>
-
             <div>
-              <label style="font-size: 0.78rem; font-weight: 750; color: var(--text-muted);">Hero Character &amp; Special Moves:</label>
-              <input type="text" id="wizard-hero" value="Cyber Ronin with Plasma Katana &amp; Dragon Whirlwind" style="margin-top: 4px;" />
+              <label style="font-size: 0.78rem; font-weight: 750; color: var(--text-muted);">Enemies &amp; Boss Hazards:</label>
+              <input type="text" id="wizard-enemies" value="Mohawk Punks, Heavy Armored Brutes, and Destructible Crates" style="margin-top: 4px;" />
             </div>
-
-            <div>
-              <label style="font-size: 0.78rem; font-weight: 750; color: var(--text-muted);">Enemy Types &amp; Boss Hazards:</label>
-              <input type="text" id="wizard-enemies" value="Mohawk Punks, Shield Drones, and Mech Brute Boss" style="margin-top: 4px;" />
-            </div>
-
             <button class="btn-primary" id="btn-compile-ai" style="margin-top: 6px;">
-              <svg class="icon icon-sm"><use href="#i-spark"/></svg> Compile 16-Bit Game with GPT-6 Astra
+              <svg class="icon icon-sm"><use href="#i-spark"/></svg> Compile Game with GPT-6 Astra
             </button>
           </div>
 
-          <!-- Iterative Chat Console -->
           <div class="card">
-            <div class="card-title"><svg class="icon"><use href="#i-code"/></svg> Live Iterative Tuning Console</div>
-            <div style="font-size: 0.82rem; color: var(--text-muted);">
-              Tell GPT-6 Astra what to balance (e.g. <em>"Make hero faster"</em>, <em>"Add pizza health drops"</em>, <em>"Add flying kicks"</em>).
+            <div class="card-title"><svg class="icon"><use href="#i-code"/></svg> Iterative Tuning Console</div>
+            <div id="ai-chat-history" style="background: #080c14; border: 1px solid #1c273c; border-radius: 8px; padding: 12px; height: 190px; overflow-y: auto; font-size: 0.84rem; display: flex; flex-direction: column; gap: 8px; font-family: ui-monospace, monospace;">
+              <div style="color: var(--neon-emerald);">[ArcadeForge v2.0 Online &bull; GPT-6 Astra Engine Active]</div>
+              <div style="color: var(--snes-lavender);">Destructible Crates &bull; 4-Hit Combos &bull; Parallax Scrolling Enabled.</div>
             </div>
-
-            <div id="ai-chat-history" style="background: #090d16; border: 1px solid var(--card-border); border-radius: 8px; padding: 12px; height: 200px; overflow-y: auto; font-size: 0.84rem; display: flex; flex-direction: column; gap: 8px; font-family: ui-monospace, monospace;">
-              <div style="color: var(--arcade-emerald);">[GPT-6 Astra Compiler Ready &bull; Zero Error-400 Tuning Active]</div>
-              <div style="color: var(--snes-lavender);">SNES Mode-7 Parallax Engine &bull; 60 FPS Canvas Active.</div>
-            </div>
-
             <div style="display: flex; gap: 8px;">
               <input type="text" id="iterative-chat-input" placeholder="Tweak game (e.g. 'Add flying kicks and more enemies')..." />
               <button class="btn-primary" id="btn-send-tweak"><svg class="icon icon-sm"><use href="#i-send"/></svg></button>
@@ -364,16 +419,14 @@
         </div>
       </div>
 
-      <!-- 3. MOBILE QR CODE SCAN VIEW -->
+      <!-- 4. MOBILE QR SCAN VIEW -->
       <div id="view-qr" class="view-panel">
         <div class="card" style="text-align: center; padding: 36px 20px; max-width: 500px; margin: 0 auto; width: 100%;">
-          <div style="font-size: 1.35rem; font-weight: 850; color: var(--arcade-amber);">Scan to Play &amp; Control on Phone</div>
+          <div style="font-size: 1.35rem; font-weight: 850; color: var(--neon-amber);">Scan to Play on Mobile</div>
           <p style="font-size: 0.86rem; color: var(--text-muted); margin: 6px 0 20px 0;">
-            Point your smartphone camera at this QR code to open the 16-bit SNES touch controller on your mobile device:
+            Scan with your phone camera to open the game and touch controller directly in your mobile browser:
           </p>
-
           <div id="qrcode-container" style="background: #ffffff; padding: 16px; border-radius: 12px; display: inline-block; margin: 0 auto;"></div>
-
           <div style="margin-top: 20px; font-size: 0.8rem; color: var(--text-muted); word-break: break-all;" id="qr-url-text"></div>
         </div>
       </div>
@@ -387,7 +440,7 @@
 
     let openaiApiKey = "";
 
-    // 16-Bit Chiptune Web Audio Synthesizer (BGM & Sound FX)
+    // Web Audio Synthesizer
     let audioCtx = null;
     let bgmInterval = null;
     let isBgmPlaying = false;
@@ -407,25 +460,25 @@
 
         if (type === 'punch') {
           osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(160, now);
-          osc.frequency.exponentialRampToValueAtTime(45, now + 0.12);
+          osc.frequency.setValueAtTime(170, now);
+          osc.frequency.exponentialRampToValueAtTime(45, now + 0.1);
           gain.gain.setValueAtTime(0.35, now);
-          gain.gain.linearRampToValueAtTime(0, now + 0.12);
-          osc.start(now); osc.stop(now + 0.12);
+          gain.gain.linearRampToValueAtTime(0, now + 0.1);
+          osc.start(now); osc.stop(now + 0.1);
         } else if (type === 'kick') {
           osc.type = 'triangle';
-          osc.frequency.setValueAtTime(220, now);
-          osc.frequency.exponentialRampToValueAtTime(30, now + 0.16);
+          osc.frequency.setValueAtTime(240, now);
+          osc.frequency.exponentialRampToValueAtTime(35, now + 0.15);
           gain.gain.setValueAtTime(0.4, now);
-          gain.gain.linearRampToValueAtTime(0, now + 0.16);
-          osc.start(now); osc.stop(now + 0.16);
+          gain.gain.linearRampToValueAtTime(0, now + 0.15);
+          osc.start(now); osc.stop(now + 0.15);
         } else if (type === 'special') {
           osc.type = 'square';
           osc.frequency.setValueAtTime(320, now);
-          osc.frequency.linearRampToValueAtTime(880, now + 0.25);
+          osc.frequency.linearRampToValueAtTime(880, now + 0.22);
           gain.gain.setValueAtTime(0.3, now);
-          gain.gain.linearRampToValueAtTime(0, now + 0.25);
-          osc.start(now); osc.stop(now + 0.25);
+          gain.gain.linearRampToValueAtTime(0, now + 0.22);
+          osc.start(now); osc.stop(now + 0.22);
         } else if (type === 'jump') {
           osc.type = 'square';
           osc.frequency.setValueAtTime(180, now);
@@ -433,6 +486,13 @@
           gain.gain.setValueAtTime(0.2, now);
           gain.gain.linearRampToValueAtTime(0, now + 0.14);
           osc.start(now); osc.stop(now + 0.14);
+        } else if (type === 'smash') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(90, now);
+          osc.frequency.exponentialRampToValueAtTime(30, now + 0.2);
+          gain.gain.setValueAtTime(0.4, now);
+          gain.gain.linearRampToValueAtTime(0, now + 0.2);
+          osc.start(now); osc.stop(now + 0.2);
         } else if (type === 'item') {
           osc.type = 'sine';
           osc.frequency.setValueAtTime(523, now);
@@ -445,13 +505,12 @@
       } catch(e) {}
     }
 
-    // Toggle 16-Bit Arpeggio BGM
     function toggleBgm() {
       initAudio();
       if (isBgmPlaying) {
         clearInterval(bgmInterval);
         isBgmPlaying = false;
-        document.getElementById('btn-toggle-music').style.background = '#19243a';
+        document.getElementById('btn-toggle-music').style.background = '#151d2d';
       } else {
         isBgmPlaying = true;
         document.getElementById('btn-toggle-music').style.background = '#7057a6';
@@ -480,7 +539,7 @@
       crt.style.display = (crt.style.display === 'none') ? 'block' : 'none';
     };
 
-    // Cryptographic Helpers
+    // Crypto
     async function computeSHA256(str) {
       const msgBuffer = new TextEncoder().encode(str);
       const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
@@ -502,7 +561,6 @@
       }
     }
 
-    // Auth Unlock Gate
     async function unlockApp() {
       const pass = document.getElementById('auth-password').value.trim();
       const err = document.getElementById('auth-error');
@@ -538,24 +596,24 @@
       document.getElementById('auth-password').value = "";
     };
 
-    // Navigation Switcher
+    // Nav Switcher
     function switchNav(viewId) {
-      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.mode-pill').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.view-panel').forEach(v => v.classList.remove('active'));
 
-      const tab = Array.from(document.querySelectorAll('.nav-tab')).find(t => t.getAttribute('data-view') === viewId);
+      const tab = Array.from(document.querySelectorAll('.mode-pill')).find(t => t.getAttribute('data-view') === viewId);
       if (tab) tab.classList.add('active');
 
       const panel = document.getElementById(viewId);
       if (panel) panel.classList.add('active');
     }
 
-    document.querySelectorAll('.nav-tab').forEach(t => {
+    document.querySelectorAll('.mode-pill').forEach(t => {
       t.onclick = () => switchNav(t.getAttribute('data-view'));
     });
 
     // ==========================================================
-    // 16-BIT SNES SPRITE & PARALLAX CANVAS ENGINE
+    // 16-BIT RETRO GAME ENGINE & PARALLAX CANVAS
     // ==========================================================
     const canvas = document.getElementById('game-canvas');
     const ctx = canvas.getContext('2d');
@@ -563,31 +621,35 @@
     let parallaxOffset = 0;
     let animFrame = 0;
 
+    let currentTheme = 'cyberpunk'; // cyberpunk, sewer, dungeon, sunset
+
     let gameState = {
-      genre: 'beatemup',
       title: 'Mutant Alley 16-Bit',
       score: 0,
       hp: 100,
       stage: '1-1',
+      combo: 0,
+      comboTimer: 0,
       screenShake: 0,
       player: {
         x: 60, y: 240, zY: 240, vx: 0, vy: 0,
         facing: 'right', isMoving: false, isAttacking: false,
-        attackType: 'punch', attackTimer: 0,
-        colorBody: '#7057a6', colorVest: '#06b6d4', colorHeadband: '#f59e0b'
+        attackType: 'punch', attackTimer: 0
       },
       enemies: [
         { x: 300, y: 235, hp: 45, maxHp: 45, type: 'punk', speed: 1.1, facing: 'left', hitStun: 0 },
-        { x: 420, y: 255, hp: 70, maxHp: 70, type: 'brute', speed: 0.8, facing: 'left', hitStun: 0 }
+        { x: 420, y: 255, hp: 75, maxHp: 75, type: 'brute', speed: 0.8, facing: 'left', hitStun: 0 }
       ],
-      items: [
-        { x: 220, y: 245, type: 'pizza', collected: false }
+      crates: [
+        { x: 200, y: 240, hp: 20, broken: false },
+        { x: 370, y: 260, hp: 20, broken: false }
       ],
+      items: [],
       hitTexts: [],
       particles: []
     };
 
-    const keys = { left: false, right: false, up: false, down: false, y: false, x: false, b: false, a: false };
+    const keys = { left: false, right: false, up: false, down: false };
 
     // Keyboard controls
     window.addEventListener('keydown', (e) => {
@@ -595,10 +657,10 @@
       if (e.key === 'ArrowRight' || e.key === 'd') keys.right = true;
       if (e.key === 'ArrowUp' || e.key === 'w') keys.up = true;
       if (e.key === 'ArrowDown' || e.key === 's') keys.down = true;
-      if (e.key === 'z') { handleJump(); }
-      if (e.key === 'x') { handlePunch(); }
-      if (e.key === 'c') { handleKick(); }
-      if (e.key === ' ') { handleSpecial(); }
+      if (e.key === 'z') handleJump();
+      if (e.key === 'x') handlePunch();
+      if (e.key === 'c') handleKick();
+      if (e.key === ' ') handleSpecial();
     });
 
     window.addEventListener('keyup', (e) => {
@@ -608,7 +670,7 @@
       if (e.key === 'ArrowDown' || e.key === 's') keys.down = false;
     });
 
-    // Touch SNES Controls
+    // Touch Bindings
     function bindBtn(id, action) {
       const el = document.getElementById(id);
       if (!el) return;
@@ -640,46 +702,59 @@
       if (p.isAttacking) return;
       p.isAttacking = true;
       p.attackType = type;
-      p.attackTimer = 14;
+      p.attackTimer = 13;
 
       if (type === 'punch') playRetroSound('punch');
       else if (type === 'kick') playRetroSound('kick');
       else if (type === 'special') playRetroSound('special');
 
-      // Hit detection
+      // Check Crates
+      gameState.crates.forEach(cr => {
+        if (!cr.broken) {
+          const dist = Math.abs(p.x - cr.x);
+          if (dist < 46 && Math.abs(p.zY - cr.y) < 26) {
+            cr.hp -= damage;
+            playRetroSound('smash');
+            gameState.screenShake = 4;
+            if (cr.hp <= 0) {
+              cr.broken = true;
+              gameState.items.push({ x: cr.x, y: cr.y, type: 'pizza', collected: false });
+              for (let i = 0; i < 8; i++) {
+                gameState.particles.push({ x: cr.x + 12, y: cr.y + 12, vx: (Math.random()-0.5)*6, vy: (Math.random()-0.5)*6, color: '#b45309', life: 18 });
+              }
+            }
+          }
+        }
+      });
+
+      // Check Enemies
       gameState.enemies.forEach(en => {
         if (en.hp > 0) {
           const isRight = (p.facing === 'right' && en.x > p.x && en.x - p.x < range);
           const isLeft = (p.facing === 'left' && en.x < p.x && p.x - en.x < range);
-          const zClose = Math.abs(p.zY - en.y) < 22;
+          const zClose = Math.abs(p.zY - en.y) < 24;
 
           if ((isRight || isLeft) && zClose) {
             en.hp -= damage;
             en.hitStun = 12;
-            en.x += (p.facing === 'right' ? 16 : -16);
+            en.x += (p.facing === 'right' ? 18 : -18);
             gameState.score += (damage * 10);
             document.getElementById('hud-score').textContent = String(gameState.score).padStart(6, '0');
 
-            // Screen shake
-            gameState.screenShake = 6;
+            gameState.combo++;
+            gameState.comboTimer = 60;
+            gameState.screenShake = 5;
 
-            // Damage text
             gameState.hitTexts.push({
-              x: en.x, y: en.y - 30, text: type === 'special' ? 'CRITICAL!' : `${damage}0`, life: 24
+              x: en.x, y: en.y - 30, text: gameState.combo > 1 ? `${gameState.combo}x COMBO!` : `${damage}0`, life: 25
             });
 
-            // Spark particles
             for (let i = 0; i < 7; i++) {
               gameState.particles.push({
-                x: en.x + 10, y: en.y + 15,
+                x: en.x + 12, y: en.y + 15,
                 vx: (Math.random()-0.5)*5, vy: (Math.random()-0.5)*5,
                 color: type === 'special' ? '#f59e0b' : '#06b6d4', life: 16
               });
-            }
-
-            // Drop pizza on death
-            if (en.hp <= 0 && Math.random() < 0.6) {
-              gameState.items.push({ x: en.x, y: en.y, type: 'pizza', collected: false });
             }
           }
         }
@@ -688,9 +763,8 @@
 
     function handlePunch() { triggerAttack('punch', 15, 46); }
     function handleKick() { triggerAttack('kick', 22, 54); }
-    function handleSpecial() { triggerAttack('special', 40, 70); }
+    function handleSpecial() { triggerAttack('special', 40, 72); }
 
-    // Main 60 FPS Game Loop
     function gameLoop() {
       updateGame();
       drawGame();
@@ -701,14 +775,12 @@
     function updateGame() {
       const p = gameState.player;
 
-      // Player Movement
       p.isMoving = false;
-      if (keys.left) { p.x -= 3.4; p.facing = 'left'; p.isMoving = true; parallaxOffset -= 1.2; }
-      if (keys.right) { p.x += 3.4; p.facing = 'right'; p.isMoving = true; parallaxOffset += 1.2; }
+      if (keys.left) { p.x -= 3.4; p.facing = 'left'; p.isMoving = true; parallaxOffset -= 1.4; }
+      if (keys.right) { p.x += 3.4; p.facing = 'right'; p.isMoving = true; parallaxOffset += 1.4; }
       if (keys.up && p.zY > 190) { p.zY -= 2; p.y -= 2; p.isMoving = true; }
       if (keys.down && p.zY < 290) { p.zY += 2; p.y += 2; p.isMoving = true; }
 
-      // Jump gravity
       p.y += p.vy;
       if (p.y < p.zY) {
         p.vy += 0.65;
@@ -717,28 +789,29 @@
         p.vy = 0;
       }
 
-      // Bound clamping
       p.x = Math.max(16, Math.min(canvas.width - 48, p.x));
 
-      // Attack countdown
       if (p.isAttacking) {
         p.attackTimer--;
         if (p.attackTimer <= 0) p.isAttacking = false;
       }
 
-      // Enemy AI
+      if (gameState.comboTimer > 0) {
+        gameState.comboTimer--;
+        if (gameState.comboTimer <= 0) gameState.combo = 0;
+      }
+
+      // Enemy logic
       gameState.enemies.forEach(en => {
         if (en.hp > 0) {
           if (en.hitStun > 0) {
             en.hitStun--;
           } else {
-            // Seek player
             if (en.x > p.x + 36) { en.x -= en.speed; en.facing = 'left'; }
             if (en.x < p.x - 36) { en.x += en.speed; en.facing = 'right'; }
             if (en.y > p.zY) en.y -= 0.6;
             if (en.y < p.zY) en.y += 0.6;
 
-            // Attack player
             if (Math.abs(en.x - p.x) < 38 && Math.abs(en.y - p.zY) < 18) {
               if (Math.random() < 0.025) {
                 gameState.hp = Math.max(0, gameState.hp - 5);
@@ -751,7 +824,7 @@
         }
       });
 
-      // Item Pickup (Pizza / Health)
+      // Item pickup
       gameState.items.forEach(it => {
         if (!it.collected && Math.abs(p.x - it.x) < 32 && Math.abs(p.zY - it.y) < 22) {
           it.collected = true;
@@ -764,7 +837,7 @@
         }
       });
 
-      // Next Stage Wave Respawn
+      // Next wave respawn
       const aliveEnemies = gameState.enemies.filter(en => en.hp > 0);
       if (aliveEnemies.length === 0) {
         playRetroSound('item');
@@ -775,24 +848,22 @@
           { x: 440, y: 250, hp: 60, maxHp: 60, type: 'ninja', speed: 1.6, facing: 'left', hitStun: 0 },
           { x: 490, y: 275, hp: 90, maxHp: 90, type: 'brute', speed: 0.9, facing: 'left', hitStun: 0 }
         ];
+        gameState.crates = [
+          { x: 180 + Math.random()*200, y: 240, hp: 20, broken: false }
+        ];
       }
 
-      // Screen shake decay
       if (gameState.screenShake > 0) gameState.screenShake--;
 
-      // Hit texts
       gameState.hitTexts.forEach(ht => { ht.y -= 0.8; ht.life--; });
       gameState.hitTexts = gameState.hitTexts.filter(ht => ht.life > 0);
 
-      // Particles
       gameState.particles.forEach(pt => { pt.x += pt.vx; pt.y += pt.vy; pt.life--; });
       gameState.particles = gameState.particles.filter(pt => pt.life > 0);
     }
 
     function drawGame() {
       ctx.save();
-
-      // Screen Shake
       if (gameState.screenShake > 0) {
         ctx.translate((Math.random()-0.5)*gameState.screenShake*2, (Math.random()-0.5)*gameState.screenShake*2);
       }
@@ -800,88 +871,74 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // ==========================================
-      // 1. 16-BIT PARALLAX SCENERY (SNES MODE-7 STYLE)
+      // 1. DYNAMIC THEMED PARALLAX SCENERY
       // ==========================================
-      // Layer A: Dark Neon Sky
-      const skyGrad = ctx.createLinearGradient(0, 0, 0, 200);
-      skyGrad.addColorStop(0, '#040711');
-      skyGrad.addColorStop(0.7, '#16142e');
-      skyGrad.addColorStop(1, '#2c1e4a');
-      ctx.fillStyle = skyGrad;
-      ctx.fillRect(0, 0, canvas.width, 220);
+      if (currentTheme === 'sewer') {
+        ctx.fillStyle = '#061a12';
+        ctx.fillRect(0, 0, canvas.width, 200);
+        // Green sewer pipe lines
+        ctx.fillStyle = '#064e3b';
+        ctx.fillRect(0, 160, canvas.width, 40);
+        ctx.fillStyle = '#022c22';
+        ctx.fillRect(0, 200, canvas.width, canvas.height - 200);
+        ctx.fillStyle = '#10b981'; // Acid glow
+        ctx.fillRect(0, 198, canvas.width, 3);
+      } else if (currentTheme === 'sunset') {
+        const sunsetGrad = ctx.createLinearGradient(0, 0, 0, 200);
+        sunsetGrad.addColorStop(0, '#f97316'); sunsetGrad.addColorStop(0.6, '#ec4899'); sunsetGrad.addColorStop(1, '#8b5cf6');
+        ctx.fillStyle = sunsetGrad; ctx.fillRect(0, 0, canvas.width, 200);
+        ctx.fillStyle = '#1e1b4b'; ctx.fillRect(0, 200, canvas.width, canvas.height - 200);
+        ctx.fillStyle = '#f43f5e'; ctx.fillRect(0, 198, canvas.width, 3);
+      } else {
+        // Default Neo-Tokyo Cyberpunk
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, 200);
+        skyGrad.addColorStop(0, '#040711'); skyGrad.addColorStop(0.7, '#16142e'); skyGrad.addColorStop(1, '#2c1e4a');
+        ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, 200);
 
-      // Distant stars / moons
-      ctx.fillStyle = '#ffffff';
-      for (let i = 0; i < 20; i++) {
-        const sx = ((i * 37) - (parallaxOffset * 0.1)) % canvas.width;
-        ctx.fillRect((sx + canvas.width) % canvas.width, 15 + (i * 7) % 70, 2, 2);
-      }
-
-      // Layer B: Distant 16-bit Skyline Silhouettes (Parallax 0.3x)
-      ctx.fillStyle = '#1e1c38';
-      for (let bx = -100; bx < canvas.width + 100; bx += 60) {
-        const h = 50 + ((bx * 7) % 45);
-        const xPos = ((bx - (parallaxOffset * 0.3)) % (canvas.width + 120));
-        ctx.fillRect(xPos, 200 - h, 50, h);
-        // Windows
-        ctx.fillStyle = '#f59e0b';
-        ctx.fillRect(xPos + 10, 200 - h + 15, 4, 6);
-        ctx.fillRect(xPos + 30, 200 - h + 25, 4, 6);
+        // Skyline silhouettes
         ctx.fillStyle = '#1e1c38';
+        for (let bx = -100; bx < canvas.width + 100; bx += 60) {
+          const h = 50 + ((bx * 7) % 45);
+          const xPos = ((bx - (parallaxOffset * 0.3)) % (canvas.width + 120));
+          ctx.fillRect(xPos, 200 - h, 50, h);
+          ctx.fillStyle = '#f59e0b';
+          ctx.fillRect(xPos + 10, 200 - h + 15, 4, 6);
+          ctx.fillRect(xPos + 30, 200 - h + 25, 4, 6);
+          ctx.fillStyle = '#1e1c38';
+        }
+
+        ctx.fillStyle = '#151c2c'; ctx.fillRect(0, 200, canvas.width, canvas.height - 200);
+        ctx.fillStyle = '#06b6d4'; ctx.fillRect(0, 198, canvas.width, 3);
       }
 
-      // Layer C: Midground Industrial Alley (Parallax 0.7x)
-      ctx.fillStyle = '#22283d';
-      for (let mx = -80; mx < canvas.width + 80; mx += 85) {
-        const mxPos = ((mx - (parallaxOffset * 0.7)) % (canvas.width + 100));
-        ctx.fillRect(mxPos, 140, 70, 60);
-      }
-
-      // Layer D: Floor / Street with Grid Depth Lines
-      const streetGrad = ctx.createLinearGradient(0, 200, 0, canvas.height);
-      streetGrad.addColorStop(0, '#1c2436');
-      streetGrad.addColorStop(0.4, '#151c2c');
-      streetGrad.addColorStop(1, '#0c101c');
-      ctx.fillStyle = streetGrad;
-      ctx.fillRect(0, 200, canvas.width, canvas.height - 200);
-
-      // Curbs & Horizon Line
-      ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(0, 198, canvas.width, 3);
-
-      // Perspective floor stripes
-      ctx.strokeStyle = '#29354f';
-      ctx.lineWidth = 1;
+      // Perspective floor lines
+      ctx.strokeStyle = '#29354f'; ctx.lineWidth = 1;
       for (let gx = -100; gx < canvas.width + 100; gx += 50) {
         const floorX = ((gx - parallaxOffset) % (canvas.width + 80));
-        ctx.beginPath();
-        ctx.moveTo(floorX, 200);
-        ctx.lineTo(floorX * 1.3 - 40, canvas.height);
-        ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(floorX, 200); ctx.lineTo(floorX * 1.3 - 40, canvas.height); ctx.stroke();
       }
 
-      // ==========================================
-      // 2. ITEMS (PIZZA HEALTH DROPS)
-      // ==========================================
-      gameState.items.forEach(it => {
-        if (!it.collected) {
-          // Pizza box / slice
-          ctx.fillStyle = '#eab308';
-          ctx.beginPath();
-          ctx.moveTo(it.x, it.y);
-          ctx.lineTo(it.x + 14, it.y - 8);
-          ctx.lineTo(it.x + 18, it.y + 4);
-          ctx.closePath();
-          ctx.fill();
-          // Pepperoni
-          ctx.fillStyle = '#dc2626';
-          ctx.fillRect(it.x + 6, it.y - 2, 3, 3);
+      // 2. Destructible Wooden Crates
+      gameState.crates.forEach(cr => {
+        if (!cr.broken) {
+          ctx.fillStyle = '#92400e';
+          ctx.fillRect(cr.x, cr.y, 26, 26);
+          ctx.strokeStyle = '#f59e0b';
+          ctx.strokeRect(cr.x, cr.y, 26, 26);
+          ctx.beginPath(); ctx.moveTo(cr.x, cr.y); ctx.lineTo(cr.x+26, cr.y+26); ctx.stroke();
         }
       });
 
-      // ==========================================
-      // 3. 16-BIT ANIMATED HERO SPRITE
-      // ==========================================
+      // 3. Items (Pizza)
+      gameState.items.forEach(it => {
+        if (!it.collected) {
+          ctx.fillStyle = '#eab308';
+          ctx.beginPath(); ctx.moveTo(it.x, it.y); ctx.lineTo(it.x + 14, it.y - 8); ctx.lineTo(it.x + 18, it.y + 4); ctx.closePath(); ctx.fill();
+          ctx.fillStyle = '#dc2626'; ctx.fillRect(it.x + 6, it.y - 2, 3, 3);
+        }
+      });
+
+      // 4. Player Sprite (16-Bit Hero)
       const p = gameState.player;
       ctx.save();
       ctx.translate(p.x + 16, p.y + 24);
@@ -889,173 +946,139 @@
 
       // Shadow
       ctx.fillStyle = 'rgba(0,0,0,0.45)';
-      ctx.beginPath();
-      ctx.ellipse(0, p.zY - p.y + 22, 14, 5, 0, 0, Math.PI*2);
-      ctx.fill();
+      ctx.beginPath(); ctx.ellipse(0, p.zY - p.y + 22, 14, 5, 0, 0, Math.PI*2); ctx.fill();
 
-      // Walking bounce
       const legBob = p.isMoving ? Math.sin(animFrame * 0.3) * 4 : 0;
-
-      // Legs / Boots
-      ctx.fillStyle = '#1e1b4b'; // Dark blue trousers
-      ctx.fillRect(-8, 8, 6, 14 + legBob);
-      ctx.fillRect(2, 8, 6, 14 - legBob);
-      ctx.fillStyle = '#f59e0b'; // Gold boots
-      ctx.fillRect(-9, 20 + legBob, 8, 4);
-      ctx.fillRect(1, 20 - legBob, 8, 4);
+      ctx.fillStyle = '#1e1b4b';
+      ctx.fillRect(-8, 8, 6, 14 + legBob); ctx.fillRect(2, 8, 6, 14 - legBob);
+      ctx.fillStyle = '#f59e0b';
+      ctx.fillRect(-9, 20 + legBob, 8, 4); ctx.fillRect(1, 20 - legBob, 8, 4);
 
       // Torso / Vest
-      ctx.fillStyle = p.colorVest;
+      ctx.fillStyle = '#06b6d4';
       ctx.fillRect(-10, -6, 20, 15);
-      ctx.fillStyle = '#ffffff'; // White inner belt
-      ctx.fillRect(-10, 6, 20, 3);
+      ctx.fillStyle = '#fff'; ctx.fillRect(-10, 6, 20, 3);
 
-      // Head / Face
-      ctx.fillStyle = '#fed7aa'; // Skin
-      ctx.fillRect(-6, -20, 12, 13);
-      ctx.fillStyle = '#1e293b'; // Spiky hair
-      ctx.fillRect(-7, -24, 14, 5);
-
-      // Headband with streaming tail
-      ctx.fillStyle = p.colorHeadband;
-      ctx.fillRect(-7, -19, 14, 4);
+      // Head / Flowing Headband
+      ctx.fillStyle = '#fed7aa'; ctx.fillRect(-6, -20, 12, 13);
+      ctx.fillStyle = '#1e293b'; ctx.fillRect(-7, -24, 14, 5);
+      ctx.fillStyle = '#f59e0b'; ctx.fillRect(-7, -19, 14, 4);
       const tailWiggle = Math.sin(animFrame * 0.25) * 3;
       ctx.fillRect(-14, -18 + tailWiggle, 8, 3);
 
-      // Attack Pose Extensions
       if (p.isAttacking) {
         if (p.attackType === 'punch') {
-          // Punch arm
-          ctx.fillStyle = '#fed7aa';
-          ctx.fillRect(8, -4, 18, 7);
-          ctx.fillStyle = '#f59e0b'; // Boxing glove
-          ctx.fillRect(24, -6, 10, 10);
+          ctx.fillStyle = '#fed7aa'; ctx.fillRect(8, -4, 18, 7);
+          ctx.fillStyle = '#f59e0b'; ctx.fillRect(24, -6, 10, 10);
         } else if (p.attackType === 'kick') {
-          // Flying kick
-          ctx.fillStyle = '#1e1b4b';
-          ctx.fillRect(4, 2, 22, 8);
-          ctx.fillStyle = '#f59e0b';
-          ctx.fillRect(24, 0, 8, 10);
+          ctx.fillStyle = '#1e1b4b'; ctx.fillRect(4, 2, 22, 8);
+          ctx.fillStyle = '#f59e0b'; ctx.fillRect(24, 0, 8, 10);
         } else if (p.attackType === 'special') {
-          // Katana Plasma Slash
           ctx.fillStyle = '#06b6d4';
-          ctx.beginPath();
-          ctx.arc(10, 0, 32, -Math.PI*0.4, Math.PI*0.4);
-          ctx.lineWidth = 6;
-          ctx.strokeStyle = '#38bdf8';
-          ctx.stroke();
+          ctx.beginPath(); ctx.arc(10, 0, 32, -Math.PI*0.4, Math.PI*0.4); ctx.lineWidth = 6; ctx.strokeStyle = '#38bdf8'; ctx.stroke();
         }
       } else {
-        // Idle Arms
-        ctx.fillStyle = '#fed7aa';
-        ctx.fillRect(-12, -4, 4, 10);
-        ctx.fillRect(8, -4, 4, 10);
+        ctx.fillStyle = '#fed7aa'; ctx.fillRect(-12, -4, 4, 10); ctx.fillRect(8, -4, 4, 10);
       }
       ctx.restore();
 
-      // ==========================================
-      // 4. 16-BIT ENEMY SPRITES
-      // ==========================================
+      // 5. Enemies Sprites
       gameState.enemies.forEach(en => {
         if (en.hp > 0) {
           ctx.save();
           ctx.translate(en.x + 14, en.y + 24);
           if (en.facing === 'left') ctx.scale(-1, 1);
 
-          // Shadow
           ctx.fillStyle = 'rgba(0,0,0,0.4)';
-          ctx.beginPath();
-          ctx.ellipse(0, 22, 14, 5, 0, 0, Math.PI*2);
-          ctx.fill();
+          ctx.beginPath(); ctx.ellipse(0, 22, 14, 5, 0, 0, Math.PI*2); ctx.fill();
 
-          // Hit stun flash
           if (en.hitStun > 0 && animFrame % 4 < 2) {
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(-12, -24, 24, 46);
+            ctx.fillStyle = '#ffffff'; ctx.fillRect(-12, -24, 24, 46);
           } else {
             if (en.type === 'punk') {
-              // Mohawk Punk
-              ctx.fillStyle = '#334155'; // Pants
-              ctx.fillRect(-8, 6, 6, 14);
-              ctx.fillRect(2, 6, 6, 14);
-              ctx.fillStyle = '#f43f5e'; // Red jacket
-              ctx.fillRect(-10, -8, 20, 15);
-              ctx.fillStyle = '#fde047'; // Mohawk
-              ctx.fillRect(-3, -25, 6, 7);
-              ctx.fillStyle = '#fed7aa'; // Face
-              ctx.fillRect(-6, -18, 12, 11);
+              ctx.fillStyle = '#334155'; ctx.fillRect(-8, 6, 6, 14); ctx.fillRect(2, 6, 6, 14);
+              ctx.fillStyle = '#f43f5e'; ctx.fillRect(-10, -8, 20, 15);
+              ctx.fillStyle = '#fde047'; ctx.fillRect(-3, -25, 6, 7);
+              ctx.fillStyle = '#fed7aa'; ctx.fillRect(-6, -18, 12, 11);
             } else if (en.type === 'brute') {
-              // Heavy Brute
-              ctx.fillStyle = '#1e1b4b';
-              ctx.fillRect(-12, 4, 10, 16);
-              ctx.fillRect(2, 4, 10, 16);
-              ctx.fillStyle = '#7c3aed'; // Heavy armored torso
-              ctx.fillRect(-14, -12, 28, 18);
-              ctx.fillStyle = '#fca5a5';
-              ctx.fillRect(-8, -24, 16, 12);
+              ctx.fillStyle = '#1e1b4b'; ctx.fillRect(-12, 4, 10, 16); ctx.fillRect(2, 4, 10, 16);
+              ctx.fillStyle = '#7c3aed'; ctx.fillRect(-14, -12, 28, 18);
+              ctx.fillStyle = '#fca5a5'; ctx.fillRect(-8, -24, 16, 12);
             } else if (en.type === 'ninja') {
-              // Cyber Ninja
-              ctx.fillStyle = '#0f172a'; // Black garb
-              ctx.fillRect(-8, 6, 6, 14);
-              ctx.fillRect(2, 6, 6, 14);
-              ctx.fillRect(-10, -8, 20, 15);
-              ctx.fillStyle = '#06b6d4'; // Cyan visor
-              ctx.fillRect(-6, -16, 12, 4);
+              ctx.fillStyle = '#0f172a'; ctx.fillRect(-8, 6, 6, 14); ctx.fillRect(2, 6, 6, 14);
+              ctx.fillStyle = '#06b6d4'; ctx.fillRect(-10, -8, 20, 15); ctx.fillRect(-6, -16, 12, 4);
             }
           }
           ctx.restore();
 
-          // Enemy Health Bar
-          ctx.fillStyle = '#1e293b';
-          ctx.fillRect(en.x - 4, en.y - 12, 36, 4);
-          ctx.fillStyle = '#ef4444';
-          ctx.fillRect(en.x - 4, en.y - 12, Math.max(0, (en.hp / en.maxHp) * 36), 4);
+          ctx.fillStyle = '#1e293b'; ctx.fillRect(en.x - 4, en.y - 12, 36, 4);
+          ctx.fillStyle = '#ef4444'; ctx.fillRect(en.x - 4, en.y - 12, Math.max(0, (en.hp / en.maxHp) * 36), 4);
         }
       });
 
-      // ==========================================
-      // 5. HIT DAMAGE FLOATING TEXTS & PARTICLES
-      // ==========================================
+      // 6. Hit damage text & particles
       gameState.hitTexts.forEach(ht => {
         ctx.font = 'bold 13px ui-monospace, monospace';
-        ctx.fillStyle = '#fde047';
-        ctx.strokeStyle = '#000000';
-        ctx.lineWidth = 3;
-        ctx.strokeText(ht.text, ht.x, ht.y);
-        ctx.fillText(ht.text, ht.x, ht.y);
+        ctx.fillStyle = '#fde047'; ctx.strokeStyle = '#000000'; ctx.lineWidth = 3;
+        ctx.strokeText(ht.text, ht.x, ht.y); ctx.fillText(ht.text, ht.x, ht.y);
       });
 
       gameState.particles.forEach(pt => {
-        ctx.fillStyle = pt.color;
-        ctx.fillRect(pt.x, pt.y, 3, 3);
+        ctx.fillStyle = pt.color; ctx.fillRect(pt.x, pt.y, 3, 3);
       });
 
       ctx.restore();
     }
 
-    // QR Code Generator
+    // ==========================================================
+    // TEXTURE PALETTE GENERATOR & THUMBNAILS
+    // ==========================================================
+    function initTextureThumbnails() {
+      // Draw 32x32 pixel thumbnails
+      const drawThumb = (id, color1, color2) => {
+        const cv = document.getElementById(id);
+        if (!cv) return;
+        const cx = cv.getContext('2d');
+        cx.fillStyle = color1; cx.fillRect(0,0,32,32);
+        cx.fillStyle = color2;
+        for (let i = 0; i < 32; i += 8) {
+          cx.fillRect(i, 0, 4, 32);
+          cx.fillRect(0, i, 32, 4);
+        }
+      };
+      drawThumb('thumb-cyberpunk', '#16142e', '#06b6d4');
+      drawThumb('thumb-sewer', '#064e3b', '#10b981');
+      drawThumb('thumb-dungeon', '#451a03', '#f59e0b');
+      drawThumb('thumb-sunset', '#831843', '#f43f5e');
+
+      document.querySelectorAll('.texture-card').forEach(card => {
+        card.onclick = () => {
+          document.querySelectorAll('.texture-card').forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+          currentTheme = card.getAttribute('data-tex');
+          document.getElementById('texture-ai-status').textContent = `Applied texture preset: ${currentTheme.toUpperCase()}`;
+        };
+      });
+    }
+
+    // QR Code
     function initQRCode() {
       const qrContainer = document.getElementById('qrcode-container');
       qrContainer.innerHTML = "";
       const currentUrl = window.location.href;
       document.getElementById('qr-url-text').textContent = currentUrl;
       new QRCode(qrContainer, {
-        text: currentUrl,
-        width: 220,
-        height: 220,
-        colorDark: "#070a13",
-        colorLight: "#ffffff",
+        text: currentUrl, width: 220, height: 220,
+        colorDark: "#05070f", colorLight: "#ffffff",
         correctLevel: QRCode.CorrectLevel.M
       });
     }
 
     // ==========================================================
-    // GPT-6 ASTRA COMPILER (NO TEMPERATURE PARAMETER -> NO ERROR 400)
+    // GPT-6 ASTRA COMPILER & TEXTURE FORGE (NO ERROR 400)
     // ==========================================================
-    async function callGPT6Astra(promptText) {
+    async function callGPT6Astra(promptText, isSystemRole=false) {
       if (!openaiApiKey) throw new Error("OpenAI API key unlocked.");
-
-      // List of fallback models
       const models = ['gpt-6-astra', 'gpt-6-sol', 'gpt-5.6-sol'];
 
       for (const m of models) {
@@ -1066,13 +1089,13 @@
               "Authorization": `Bearer ${openaiApiKey}`,
               "Content-Type": "application/json"
             },
-            // CRITICAL: Do NOT include temperature parameter for gpt-6-astra to prevent HTTP 400!
+            // CRITICAL: Do NOT send temperature parameter with gpt-6-astra to prevent HTTP 400!
             body: JSON.stringify({
               model: m,
               messages: [
                 {
                   role: "developer",
-                  content: "You are the 16-Bit SNES ArcadeForge Game Compiler. Output high-energy retro game design parameters, character moves, and balancing notes."
+                  content: "You are the 16-Bit SNES ArcadeForge Game Director and Pixel Texture Architect. Provide creative pixel texture specifications and retro game mechanics."
                 },
                 { role: "user", content: promptText }
               ]
@@ -1085,13 +1108,38 @@
           }
         } catch(e) {}
       }
-
       throw new Error("Unable to contact GPT-6 Astra. Check network or key.");
     }
 
+    // Texture AI Generator
+    document.getElementById('btn-gen-texture-ai').onclick = async () => {
+      const btn = document.getElementById('btn-gen-texture-ai');
+      btn.disabled = true;
+      btn.textContent = "Synthesizing with GPT-6 Astra...";
+      const status = document.getElementById('texture-ai-status');
+      status.textContent = "Querying GPT-6 Astra for 16-bit pixel texture matrix...";
+
+      try {
+        const reply = await callGPT6Astra("Generate a 16-bit SNES pixel art texture theme description with 4 primary hex colors (sky, midground, foreground, accent) and atmospheric lighting.");
+        status.innerHTML = `<strong>GPT-6 Astra Texture Specs:</strong><br>${reply.replace(/\n/g, '<br>')}`;
+      } catch(e) {
+        status.textContent = "Error: " + e.message;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Generate Texture with GPT-6 Astra";
+      }
+    };
+
+    document.getElementById('btn-apply-custom-tex').onclick = () => {
+      const prompt = document.getElementById('texture-custom-prompt').value.trim();
+      if (!prompt) return;
+      currentTheme = (prompt.toLowerCase().includes('sewer') ? 'sewer' : prompt.toLowerCase().includes('sunset') ? 'sunset' : 'cyberpunk');
+      document.getElementById('texture-ai-status').textContent = `Applied custom texture theme: "${prompt}"`;
+      switchNav('view-arcade');
+    };
+
     document.getElementById('btn-compile-ai').onclick = async () => {
       const genre = document.getElementById('wizard-genre').value;
-      const theme = document.getElementById('wizard-theme').value.trim();
       const hero = document.getElementById('wizard-hero').value.trim();
       const enemies = document.getElementById('wizard-enemies').value.trim();
 
@@ -1101,31 +1149,25 @@
 
       const prompt = `Compile a 16-bit SNES arcade game blueprint:
 Genre: ${genre}
-Theme: ${theme}
 Hero: ${hero}
 Enemies: ${enemies}
 
 Return:
 1. Game Title
-2. Hero Special Move Specs
-3. Wave Boss Mechanics
-4. Suggested Parallax Palettes`;
+2. Combo Chain Moves
+3. Boss Strategy`;
 
       try {
         const reply = await callGPT6Astra(prompt);
-        gameState.title = `${theme} 16-Bit`;
-        document.getElementById('game-title-display').textContent = gameState.title;
-        document.getElementById('game-genre-badge').textContent = genre.toUpperCase();
-
         const history = document.getElementById('ai-chat-history');
-        history.innerHTML += `<div style="color: var(--arcade-amber); margin-top: 8px;"><strong>GPT-6 Astra:</strong><br>${reply.replace(/\n/g, '<br>')}</div>`;
+        history.innerHTML += `<div style="color: var(--neon-amber); margin-top: 8px;"><strong>GPT-6 Astra:</strong><br>${reply.replace(/\n/g, '<br>')}</div>`;
         history.scrollTop = history.scrollHeight;
         switchNav('view-arcade');
       } catch(e) {
         alert("Compilation error: " + e.message);
       } finally {
         btn.disabled = false;
-        btn.textContent = "Compile 16-Bit Game with GPT-6 Astra";
+        btn.textContent = "Compile Game with GPT-6 Astra";
       }
     };
 
@@ -1136,95 +1178,24 @@ Return:
       input.value = "";
 
       const history = document.getElementById('ai-chat-history');
-      history.innerHTML += `<div style="color: #ffffff; margin-top: 6px;"><strong>You:</strong> ${text}</div>`;
+      history.innerHTML += `<div style="color: #fff; margin-top: 6px;"><strong>You:</strong> ${text}</div>`;
       history.scrollTop = history.scrollHeight;
 
       try {
-        const reply = await callGPT6Astra(`The user wants to iteratively tune the 16-bit arcade game "${gameState.title}": ${text}. Suggest parameter adjustments and balance.`);
-        history.innerHTML += `<div style="color: var(--arcade-amber); margin-top: 4px;"><strong>GPT-6 Astra:</strong><br>${reply.replace(/\n/g, '<br>')}</div>`;
+        const reply = await callGPT6Astra(`Tweak 16-bit arcade mechanics: ${text}. Suggest parameter adjustments.`);
+        history.innerHTML += `<div style="color: var(--neon-amber); margin-top: 4px;"><strong>GPT-6 Astra:</strong><br>${reply.replace(/\n/g, '<br>')}</div>`;
         history.scrollTop = history.scrollHeight;
       } catch(e) {
-        history.innerHTML += `<div style="color: var(--arcade-rose);">Error: ${e.message}</div>`;
+        history.innerHTML += `<div style="color: var(--neon-rose);">Error: ${e.message}</div>`;
       }
-    };
-
-    // Python Pygame Export Generator
-    document.getElementById('btn-export-python').onclick = () => {
-      const pyCode = `# ==============================================================
-# ArcadeForge AI — Standalone 16-Bit SNES Python Pygame Game
-# Compiled by GPT-6 Astra
-# Title: ${gameState.title} (${gameState.genre})
-# ==============================================================
-import pygame
-import sys
-import random
-
-pygame.init()
-WIDTH, HEIGHT = 640, 480
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("${gameState.title} — 16-Bit SNES Arcade")
-clock = pygame.time.Clock()
-
-BG_COLOR = (12, 18, 32)
-HERO_COLOR = (112, 87, 166)
-ENEMY_COLOR = (244, 63, 94)
-
-player_x, player_y = 60, 320
-player_vy = 0
-is_jumping = False
-score = 0
-hp = 100
-
-enemies = [{'x': 400 + i*160, 'y': 320, 'hp': 40} for i in range(3)]
-
-running = True
-while running:
-    clock.tick(60)
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_z and not is_jumping:
-                player_vy = -12
-                is_jumping = True
-
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT]: player_x -= 4
-    if keys[pygame.K_RIGHT]: player_x += 4
-
-    player_y += player_vy
-    if player_y < 320:
-        player_vy += 0.65
-    else:
-        player_y = 320
-        player_vy = 0
-        is_jumping = False
-
-    screen.fill(BG_COLOR)
-    pygame.draw.rect(screen, HERO_COLOR, (player_x, player_y, 32, 48))
-    for en in enemies:
-        pygame.draw.rect(screen, ENEMY_COLOR, (en['x'], en['y'], 32, 48))
-
-    pygame.display.flip()
-
-pygame.quit()
-sys.exit()
-`;
-      const blob = new Blob([pyCode], { type: 'text/x-python' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `game.py`;
-      a.click();
-      URL.revokeObjectURL(url);
     };
 
     function initArcadeApp() {
       initQRCode();
+      initTextureThumbnails();
       requestAnimationFrame(gameLoop);
     }
 
-    // Auto-restore session if previously unlocked
     window.addEventListener('DOMContentLoaded', () => {
       if (sessionStorage.getItem('arcade_forge_auth') === TARGET_SHA256_HASH) {
         document.getElementById('auth-screen').style.display = 'none';
